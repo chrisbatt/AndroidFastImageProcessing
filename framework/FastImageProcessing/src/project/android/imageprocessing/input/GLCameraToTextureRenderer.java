@@ -44,7 +44,6 @@ public class GLCameraToTextureRenderer extends GLTextureOutputRenderer implement
 	public GLCameraToTextureRenderer() {
 		super();
 		camera = setupNewCamera();
-		curRotation = 2;
 	}
 	
 	/* (non-Javadoc)

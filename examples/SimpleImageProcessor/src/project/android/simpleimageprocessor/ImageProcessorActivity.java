@@ -3,9 +3,17 @@ package project.android.simpleimageprocessor;
 import project.android.imageprocessing.FastImageProcessingPipeline;
 import project.android.imageprocessing.FastImageProcessingView;
 import project.android.imageprocessing.filter.BasicFilter;
-import project.android.imageprocessing.filter.ConvolutionFilter;
-import project.android.imageprocessing.filter.GreyScaleFilter;
-import project.android.imageprocessing.filter.RGBFilter;
+import project.android.imageprocessing.filter.processing.ConvolutionFilter;
+import project.android.imageprocessing.filter.colour.GreyScaleFilter;
+import project.android.imageprocessing.filter.colour.ImageGammaFilter;
+import project.android.imageprocessing.filter.colour.ImageLevelsFilter;
+import project.android.imageprocessing.filter.colour.ImageBrightnessFilter;
+import project.android.imageprocessing.filter.colour.ImageSaturationFilter;
+import project.android.imageprocessing.filter.colour.ImageExposureFilter;
+import project.android.imageprocessing.filter.colour.ImageContrastFilter;
+import project.android.imageprocessing.filter.colour.HueFilter;
+import project.android.imageprocessing.filter.colour.RGBFilter;
+import project.android.imageprocessing.filter.colour.ColourMatrixFilter;
 import project.android.imageprocessing.input.GLImageToTextureRenderer;
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import project.android.imageprocessing.output.GLTextureToScreenRenderer;
@@ -24,6 +32,13 @@ public class ImageProcessorActivity extends Activity {
 	private long touchTime;
 	private FastImageProcessingPipeline pipeline;
 	private GLTextureToScreenRenderer screen;
+	private int numOfFilters = 11;
+	private int i;
+	
+	private void addFilter(BasicFilter filter) {
+		filters[i] = filter;
+		i++;		
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,26 +50,33 @@ public class ImageProcessorActivity extends Activity {
 		view.setPipeline(pipeline);
 		setContentView(view);
 		image = new GLImageToTextureRenderer(this, R.drawable.tiger);
-		filters = new BasicFilter[5];
-		filters[0] = new RGBFilter(0.33f,0.67f,1.34f);
-		filters[1] = new GreyScaleFilter();
-		filters[2] = new ConvolutionFilter(new float[] {0,-1,0,-1,5,-1,0,-1,0}, 3, 3);
-		filters[3] = new GreyScaleFilter();
-		filters[4] = new ConvolutionFilter(new float[] {
+		filters = new BasicFilter[numOfFilters];
+		addFilter(new HueFilter(3.14f/6f));
+		addFilter(new ImageBrightnessFilter(0.5f));
+		addFilter(new ColourMatrixFilter(new float[]{	0.33f,0f,0f,0f,
+														0f,0.67f,0f,0f,
+														0f,0f,1.34f,0f,
+														0.2f,0.2f,0.2f,1.0f}, 0.5f));
+		addFilter(new RGBFilter(0.33f,0.67f,1.34f));
+		addFilter(new GreyScaleFilter());
+		addFilter(new ConvolutionFilter(new float[] {
 														1/25f,1/25f,1/25f,1/25f,1/25f,
 														1/25f,1/25f,1/25f,1/25f,1/25f,
 														1/25f,1/25f,1/25f,1/25f,1/25f,
 														1/25f,1/25f,1/25f,1/25f,1/25f,
-														1/25f,1/25f,1/25f,1/25f,1/25f}, 5, 5);
-		BasicFilter edge = new ConvolutionFilter(new float[] {0,-1,0,-1,4,-1,0,-1,0}, 3, 3);
+														1/25f,1/25f,1/25f,1/25f,1/25f}, 5, 5));
+		addFilter(new ImageExposureFilter(0.95f));
+		addFilter(new ImageContrastFilter(1.5f));
+		addFilter(new ImageSaturationFilter(0.5f));
+		addFilter(new ImageGammaFilter(1.75f));
+		addFilter(new ImageLevelsFilter(0.2f,0.8f,1f,0f,1f));
+		
 		screen = new GLTextureToScreenRenderer(pipeline, true);
-		image.addTarget(filters[0]);
-		filters[0].addTarget(screen);
-		filters[1].addTarget(screen);
-		filters[2].addTarget(screen);
-		filters[3].addTarget(edge);
-		edge.addTarget(screen);
-		filters[4].addTarget(screen);
+		image.addTarget(screen);
+		for(int i = 0; i < numOfFilters; i++) {
+			filters[i].addTarget(screen);
+		}
+		
 		pipeline.setRootRenderer(image);
 		pipeline.startRendering();
 		view.setOnTouchListener(new View.OnTouchListener() {
@@ -62,16 +84,16 @@ public class ImageProcessorActivity extends Activity {
 				if(System.currentTimeMillis() - touchTime > 100) {
 					touchTime = System.currentTimeMillis();
 					pipeline.pauseRendering();
-					if(curFilter == 5) {
+					if(curFilter == 0) {
 						image.removeTarget(screen);
 					} else {
-						image.removeTarget(filters[curFilter]);
+						image.removeTarget(filters[curFilter-1]);
 					}
-					curFilter=(curFilter+1)%6;
-					if(curFilter == 5) {
+					curFilter=(curFilter+1)%(numOfFilters+1);
+					if(curFilter == 0) {
 						image.addTarget(screen);
 					} else {
-						image.addTarget(filters[curFilter]);
+						image.addTarget(filters[curFilter-1]);
 					}
 					pipeline.filtersChanged();
 					pipeline.startRendering();

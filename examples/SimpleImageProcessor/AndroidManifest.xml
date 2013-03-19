@@ -16,7 +16,7 @@
         <activity
             android:name="project.android.simpleimageprocessor.ImageProcessorActivity"
             android:label="@string/app_name" 
-            android:screenOrientation="portrait">
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
