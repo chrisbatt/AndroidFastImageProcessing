@@ -31,8 +31,11 @@ public abstract class GLRenderer {
 	protected int height;
 	
 	protected boolean customSizeSet;
+	protected boolean initialized;
 	
 	public GLRenderer() {
+		initialized = false;
+		
 		squareVertices = new FloatBuffer[4];
 		
 		float[] squareData0 = {
@@ -227,6 +230,10 @@ public abstract class GLRenderer {
 	  Calling of this method is handled by the {@link FastImageProcessingPipeline} and should not be called manually.
 	 */
 	public void onDrawFrame() {
+		if(!initialized) {
+			onSurfaceCreated();
+			initialized = true;
+		}
 		if(texture_in == 0) {
 			return;
 		}

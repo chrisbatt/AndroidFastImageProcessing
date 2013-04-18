@@ -8,6 +8,7 @@ import project.android.imageprocessing.output.GLTextureInputRenderer;
 
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 /**
  * A output producing extension of GLRenderer.  
@@ -23,7 +24,8 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	private int previousWidth;
 	private int previousHeight;
 	
-	protected List<GLTextureInputRenderer> targets;
+	private List<GLTextureInputRenderer> targets;
+	protected Object listLock = new Object();
 	
 	/**
 	 * Creates a GLTextureOutputRenderer which initially has an empty list of targets.
@@ -42,9 +44,17 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	 */
 	@Override
 	public void onDrawFrame() {
+		if(!initialized) {
+			onSurfaceCreated();
+			initialized = true;
+		}
 		if(previousWidth != width || previousHeight != height) {
+			Log.e("GLOutputRenderer", "init fbo");
 			sizeChanged();
 			initFBO();
+		}
+		if(width == 0 || height == 0) {
+			return;
 		}
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer[0]);
 		
@@ -52,8 +62,10 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 		
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 		
-		for(GLTextureInputRenderer target : targets) {
-			target.newTextureReady(texture_out[0], this);
+		synchronized(listLock) {
+			for(GLTextureInputRenderer target : targets) {
+				target.newTextureReady(texture_out[0], this);
+			}
 		}
 	}
 	
@@ -112,8 +124,10 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	 * @param target
 	 * The target which should be added to the list of targets that this renderer sends its output to.
 	 */
-	public void addTarget(GLTextureInputRenderer target) {
-		targets.add(target);
+	public synchronized void addTarget(GLTextureInputRenderer target) {
+		synchronized(listLock) {
+			targets.add(target);
+		}
 	}
 	
 	/**
@@ -122,7 +136,9 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	 * The target which should be removed from the list of targets that this renderer sends its output to.
 	 */
 	public void removeTarget(GLTextureInputRenderer target) {
-		targets.remove(target);
+		synchronized(listLock) {
+			targets.remove(target);
+		}
 	}
 	
 	/**
