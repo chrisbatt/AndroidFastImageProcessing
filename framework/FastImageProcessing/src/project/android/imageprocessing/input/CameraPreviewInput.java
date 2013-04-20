@@ -42,7 +42,7 @@ public class CameraPreviewInput extends GLTextureOutputRenderer implements OnFra
 		super();
 		camera = setupNewCamera();
 		setRenderSizeToCameraSize();
-		rotateClockwise90Degrees(1);
+		//rotateClockwise90Degrees(1);
 	}
 	
 	public void setRenderSizeToCameraSize() {

@@ -21,8 +21,7 @@ import android.view.WindowManager;
 public class ImageProcessingActivity extends Activity {
 
 	private FastImageProcessingView view;
-	private BasicFilter grey;
-	private BasicFilter edgeDetect;
+	private BasicFilter sharpen;
 	private long touchTime;
 	private FastImageProcessingPipeline pipeline;
 	private CameraPreviewInput camera;
@@ -37,17 +36,15 @@ public class ImageProcessingActivity extends Activity {
 		view = new FastImageProcessingView(this);
 		pipeline = new FastImageProcessingPipeline();
 		camera = new CameraPreviewInput();
-		grey = new GreyScaleFilter();
-		edgeDetect = new ConvolutionFilter(new float[] {
-			0, -1, 0,
-			-1, 4, -1,
-			0, -1, 0
-		}, 3, 3);
-		video = new Mp4VideoFileEndpoint(Environment.getExternalStorageDirectory().getAbsolutePath()+"/cameraOuput", 15);
+		sharpen = new ConvolutionFilter(new float[] {
+				0, 0, 0,
+				-1, 2, 0,
+				0, 0, 0
+			}, 3, 3);
+		video = new Mp4VideoFileEndpoint(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Movies/cameraOuput", 15);
 		screen = new ScreenEndpoint(pipeline, true);
-		camera.addTarget(grey);
-		grey.addTarget(edgeDetect);
-		edgeDetect.addTarget(screen);
+		camera.addTarget(sharpen);
+		sharpen.addTarget(screen);
 		pipeline.setRootRenderer(camera);
 		view.setPipeline(pipeline);
 		setContentView(view);

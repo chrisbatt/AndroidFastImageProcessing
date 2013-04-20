@@ -61,7 +61,6 @@ public class ImageResourceInput extends BasicFilter {
 		super();
 		loadImage(bitmap);
         imageChanged = true;
-		imageChanged = true;
 		curRotation = 2;
 	}
 	
@@ -101,7 +100,7 @@ public class ImageResourceInput extends BasicFilter {
 	
 	/**
 	 * Sets the image being output by this renderer to the image loaded from the given file path.
-	 * @param pathName
+	 * @param filePath
 	 * The file path to the image to load.
 	 */
 	public void setImage(String filePath) {
@@ -125,8 +124,6 @@ public class ImageResourceInput extends BasicFilter {
 	public void onSurfaceCreated() {
 		setRenderSize(imageWidth, imageHeight);
 		super.onSurfaceCreated();
-		tex = loadTexture();
-		imageChanged = false;
 	}
 	
 	private int loadTexture()
@@ -184,12 +181,6 @@ public class ImageResourceInput extends BasicFilter {
 		if(imageChanged) {
 			tex = loadTexture();
 			imageChanged = false;
-		}
-		fps++;
-		if(System.currentTimeMillis() - lastTime > 1000) {
-			Log.e("OPENGL_FPS", "gl: "+fps);
-			fps = 0;
-			lastTime = System.currentTimeMillis();
 		}
 		newTextureReady(tex, this);
 	}

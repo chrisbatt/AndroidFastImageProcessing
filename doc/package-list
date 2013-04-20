@@ -2,5 +2,6 @@ project.android.imageprocessing
 project.android.imageprocessing.filter
 project.android.imageprocessing.filter.colour
 project.android.imageprocessing.filter.processing
+project.android.imageprocessing.helper
 project.android.imageprocessing.input
 project.android.imageprocessing.output

@@ -15,8 +15,10 @@ import project.android.imageprocessing.filter.colour.ImageSaturationFilter;
 import project.android.imageprocessing.filter.colour.RGBFilter;
 import project.android.imageprocessing.filter.processing.ConvolutionFilter;
 import project.android.imageprocessing.input.ImageResourceInput;
+import project.android.imageprocessing.output.Mp4VideoFileEndpoint;
 import project.android.imageprocessing.output.ScreenEndpoint;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.util.Log;
 import android.view.Menu;
@@ -74,7 +76,7 @@ public class ImageProcessingActivity extends Activity {
 		addFilter(new ImageLevelsFilter(0.2f,0.8f,1f,0f,1f));
 		
 		screen = new ScreenEndpoint(pipeline, true);
-
+		
 		image.addTarget(screen);
 		for(int i = 0; i < numOfFilters; i++) {
 			filters[i].addTarget(screen);
