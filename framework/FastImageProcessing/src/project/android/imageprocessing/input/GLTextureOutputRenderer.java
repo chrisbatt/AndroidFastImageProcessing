@@ -20,9 +20,6 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	protected int[] frameBuffer;
 	protected int[] texture_out;
 	protected int[] depthRenderBuffer;
-
-	private int previousWidth;
-	private int previousHeight;
 	
 	private List<GLTextureInputRenderer> targets;
 	protected Object listLock = new Object();
@@ -35,30 +32,24 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 		targets = new ArrayList<GLTextureInputRenderer>();
 	}
 	
-	protected void sizeChanged() {
-		
+	@Override
+	protected void handleSizeChange() {
+		initFBO();
 	}
 	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.GLRenderer#onDrawFrame()
-	 */
 	@Override
-	public void onDrawFrame() {
-		if(!initialized) {
-			onSurfaceCreated();
-			initialized = true;
+	protected void drawFrame() {
+		if(frameBuffer == null) {
+			if(getWidth() != 0 && getHeight() != 0) {
+				initFBO();
+			} else {
+				return;
+			}
 		}
-		if(previousWidth != width || previousHeight != height) {
-			Log.e("GLOutputRenderer", "init fbo");
-			sizeChanged();
-			initFBO();
-		}
-		if(width == 0 || height == 0) {
-			return;
-		}
+
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer[0]);
 		
-		super.onDrawFrame();
+		super.drawFrame();
 		
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 		
@@ -92,7 +83,7 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer[0]);
 		
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture_out[0]);
-		GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGB, width, height, 0, GLES20.GL_RGB, GLES20.GL_UNSIGNED_SHORT_5_6_5, null);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGB, getWidth(), getHeight(), 0, GLES20.GL_RGB, GLES20.GL_UNSIGNED_SHORT_5_6_5, null);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
@@ -100,23 +91,12 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 		GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, texture_out[0], 0);
 		
 		GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, depthRenderBuffer[0]);
-		GLES20.glRenderbufferStorage(GLES20.GL_RENDERBUFFER, GLES20.GL_DEPTH_COMPONENT16, width, height);
+		GLES20.glRenderbufferStorage(GLES20.GL_RENDERBUFFER, GLES20.GL_DEPTH_COMPONENT16, getWidth(), getHeight());
 		GLES20.glFramebufferRenderbuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT, GLES20.GL_RENDERBUFFER, depthRenderBuffer[0]);
 		
 		if (GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER) != GLES20.GL_FRAMEBUFFER_COMPLETE) {
 			throw new RuntimeException(this+": Failed to set up render buffer");
 		}
-		
-		previousWidth = width;
-		previousHeight = height;
-	}
-	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.GLRenderer#onSurfaceCreated()
-	 */
-	@Override
-	public void onSurfaceCreated() {
-		super.onSurfaceCreated();
 	}
 	
 	/**
@@ -147,15 +127,5 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	 */
 	public List<GLTextureInputRenderer> getTargets() {
 		return targets;
-	}
-	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.GLRenderer#setRenderSize(int, int)
-	 */
-	@Override
-	public void setRenderSize(int width, int height) {
-		super.setRenderSize(width, height);
-		previousWidth = 0;
-		previousHeight = 0;
 	}
 }

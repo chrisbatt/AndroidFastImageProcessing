@@ -77,8 +77,8 @@ public class Mp4VideoFileEndpoint extends GLRenderer implements GLTextureInputRe
 	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
 		texture_in = texture;
 		if(videoRecorder == null) {
-			width = source.getWidth();
-			height = source.getHeight();
+			setWidth(source.getWidth());
+			setHeight(source.getHeight());
 			return;
 		} 
 		onDrawFrame();

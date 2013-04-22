@@ -15,6 +15,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.Surface;
 
@@ -26,18 +27,17 @@ import android.view.Surface;
  */
 @TargetApi(14)
 public class VideoResourceInput extends GLTextureOutputRenderer implements OnFrameAvailableListener{	
+	private static final String UNIFORM_CAM_MATRIX = "u_Matrix";
+	
 	private MediaPlayer player;
 	private SurfaceTexture videoTex;
-	private String filepath;
-	private FileDescriptor fileDescriptor;
 	private Context context;
+	private GLSurfaceView view;
 	private int id;
-	private int type;
 	
 	private int matrixHandle;
 	private float[] matrix = new float[16];
 	
-	private boolean changed;
 	private boolean startWhenReady;
 	private boolean ready;
 	
@@ -48,23 +48,18 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 	 * @param id
 	 * The resource id that points to the video that should be displayed
 	 */
-	public VideoResourceInput(Context context, int id) {
+	public VideoResourceInput(GLSurfaceView view, Context context, int id) {
 		super();
+		this.view = view;
 		this.player = MediaPlayer.create(context, id);
 		this.context = context;
 		this.id = id;
-	}
-	
-	private void init() {
 		startWhenReady = false;
 		ready = false;
 	}
 	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#onSurfaceCreated()
-	 */
 	@Override
-	public void onSurfaceCreated() {
+	protected void initWithGLContext() {
 		ready = false;
 		if(player.isPlaying()) {
 			player.stop();
@@ -81,7 +76,7 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 			Log.e("VideoPlayer", sw.toString());
 		}
 		setRenderSize(player.getVideoWidth(), player.getVideoHeight());
-		super.onSurfaceCreated();
+		super.initWithGLContext();
 		
 		int[] textures = new int[1];
 		GLES20.glGenTextures(1, textures, 0);
@@ -112,21 +107,12 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 	 */
 	public void setVideoSource(int id) {
 		this.id = id;
-		initialized = false;
 	}
 	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#onDrawFrame()
-	 */
 	@Override
-	public void onDrawFrame() {
-		if(!initialized) {
-			onSurfaceCreated();
-			initialized = true;
-		}
-		
+	protected void drawFrame() {
 		videoTex.updateTexImage(); 
-    	super.onDrawFrame();
+		super.drawFrame();
 	}
 	
 	private void bindTexture() {
@@ -154,61 +140,36 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 	@Override
 	protected void initShaderHandles() {
 		super.initShaderHandles();
-        matrixHandle = GLES20.glGetUniformLocation(programHandle, "u_Matrix");    
+        matrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CAM_MATRIX);    
 	}
 
 	@Override
 	protected String getVertexShader() {
-		return "uniform mat4 u_Matrix;      \n"		// A constant representing the combined model/view/projection matrix.
-				
-				  + "attribute vec4 a_Position;     \n"		// Per-vertex position information we will pass in.	
-				  + "attribute vec2 a_TexCoord;     \n"		// Per-vertex position information we will pass in. 
-				  + "varying vec2 v_TexCoord;     \n"		// Per-vertex position information we will pass in.	
-
-				  + "void main()                    \n"		// The entry point for our vertex shader.
-				  + "{                              \n"
-				  +" vec4 texPos = u_Matrix * vec4(a_TexCoord, 1, 1);"
-				  + "v_TexCoord = texPos.xy;       \n"
-				  + "   gl_Position = a_Position;   \n" 	// gl_Position is a special variable used to store the final position.
-				  + "                \n"     // Multiply the vertex by the matrix to get the final point in 			                                            			 
-				  + "}                              \n";    // normalized screen coordinates.
+		return 
+					"uniform mat4 "+UNIFORM_CAM_MATRIX+";\n"
+				  + "attribute vec4 "+ATTRIBUTE_POSITION+";\n"
+				  + "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"	
+				  + "varying vec2 "+VARYING_TEXCOORD+";\n"	
+				  
+				  + "void main() {\n"	
+				  + "   vec4 texPos = "+UNIFORM_CAM_MATRIX+" * vec4("+ATTRIBUTE_TEXCOORD+", 1, 1);\n"
+				  + "   "+VARYING_TEXCOORD+" = texPos.xy;\n"
+				  + "   gl_Position = "+ATTRIBUTE_POSITION+";\n"		                                            			 
+				  + "}\n";		
 	}
 
 	@Override
 	protected String getFragmentShader() {
 		return "#extension GL_OES_EGL_image_external : require\n"+
-		        "precision mediump float;" +                          
-		        "uniform samplerExternalOES u_Texture;"  
-				  + "varying vec2 v_TexCoord;     \n"		// Per-vertex position information we will pass in.	
-				
-		  + "void main()                    \n"		// The entry point for our fragment shader.
-		  + "{                              \n"
-		  + "   gl_FragColor = texture2D(u_Texture, v_TexCoord);     \n"		// Pass the color directly through the pipeline.		  
-		  + "}                              \n";
+		        super.getFragmentShader();
 	}
-
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.GLRenderer#onPause()
-	 */
-	@Override
-	public void onPause() {
-		player.stop();
-	}
-
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.GLRenderer#onResume()
-	 */
-	@Override
-	public void onResume() {
-		player.start();
-	}
-
+	
 	/* (non-Javadoc)
 	 * @see android.graphics.SurfaceTexture.OnFrameAvailableListener#onFrameAvailable(android.graphics.SurfaceTexture)
 	 */
 	@Override
 	public void onFrameAvailable(SurfaceTexture arg0) {
-		changed = true;
+		view.requestRender();
 	}
 	
 	/**

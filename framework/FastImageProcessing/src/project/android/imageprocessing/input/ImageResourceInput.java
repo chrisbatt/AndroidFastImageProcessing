@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
+import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.util.Log;
 
@@ -14,15 +15,17 @@ import android.util.Log;
  * The image can be changed at any time without creating a new GLImageToTextureRenderer by using the setImage(int resourceId) method.
  * @author Chris Batt
  */
-public class ImageResourceInput extends BasicFilter {
+/**
+ * @author Chris
+ *
+ */
+public class ImageResourceInput extends GLTextureOutputRenderer {
 	private Context context;
 	private int tex;
-	private int fps;
-	private long lastTime;
+	private GLSurfaceView view;
 	private Bitmap bitmap;
 	private int imageWidth;
 	private int imageHeight;
-	private boolean imageChanged;
 	
 	/**
 	 * Creates a GLImageToTextureRenderer using the given resourceId as the image input. 
@@ -32,11 +35,10 @@ public class ImageResourceInput extends BasicFilter {
 	 * @param resourceId
 	 * The resource id of the image which should be processed.
 	 */
-	public ImageResourceInput(Context context, int resourceId) {
-		super();
+	public ImageResourceInput(GLSurfaceView view, Context context, int resourceId) {
 		this.context = context;
-		loadImage(resourceId);
-		imageChanged = true;
+		this.view = view;
+		setImage(resourceId);
 		curRotation = 2;
 	}
 	
@@ -45,10 +47,9 @@ public class ImageResourceInput extends BasicFilter {
 	 * @param pathName
 	 * The file path to the image to load.
 	 */
-	public ImageResourceInput(String pathName) {
-		super();
-		loadImage(pathName);
-		imageChanged = true;
+	public ImageResourceInput(GLSurfaceView view, String pathName) {
+		this.view = view;
+		setImage(pathName);
 		curRotation = 2;
 	}
 	
@@ -57,36 +58,10 @@ public class ImageResourceInput extends BasicFilter {
 	 * @param bitmap
 	 * The bitmap which contains the image.
 	 */
-	public ImageResourceInput(Bitmap bitmap) {
-		super();
-		loadImage(bitmap);
-        imageChanged = true;
+	public ImageResourceInput(GLSurfaceView view, Bitmap bitmap) {
+		this.view = view;
+		setImage(bitmap);
 		curRotation = 2;
-	}
-	
-	private void loadImage(int resourceId) {
-		final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-        bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
-        imageWidth = bitmap.getWidth();
-        imageHeight = bitmap.getHeight();
-        imageChanged = true;
-	}
-	
-	private void loadImage(String pathName) {
-		final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-        bitmap = BitmapFactory.decodeFile(pathName, options);
-        imageWidth = bitmap.getWidth();
-        imageHeight = bitmap.getHeight();
-        imageChanged = true;
-	}
-	
-	private void loadImage(Bitmap bitmap) {
-		this.bitmap = bitmap;
-        imageWidth = bitmap.getWidth();
-        imageHeight = bitmap.getHeight();
-        imageChanged = true;
 	}
 	
 	/**
@@ -95,7 +70,9 @@ public class ImageResourceInput extends BasicFilter {
 	 * The resource id of the new image to be output by this renderer.
 	 */
 	public void setImage(int resourceId) {
-		loadImage(resourceId);
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+		loadImage(BitmapFactory.decodeResource(context.getResources(), resourceId, options));
 	}
 	
 	/**
@@ -104,7 +81,9 @@ public class ImageResourceInput extends BasicFilter {
 	 * The file path to the image to load.
 	 */
 	public void setImage(String filePath) {
-		loadImage(filePath);
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inScaled = false;
+		loadImage(BitmapFactory.decodeFile(filePath, options));
 	}
 	
 	/**
@@ -116,41 +95,27 @@ public class ImageResourceInput extends BasicFilter {
 		loadImage(bitmap);
 	}
 	
-	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#onSurfaceCreated()
-	 */
-	@Override
-	public void onSurfaceCreated() {
+	private void loadImage(Bitmap bitmap) {
+		this.bitmap = bitmap;
+        imageWidth = bitmap.getWidth();
+        imageHeight = bitmap.getHeight();
 		setRenderSize(imageWidth, imageHeight);
-		super.onSurfaceCreated();
+		view.requestRender();
 	}
 	
-	private int loadTexture()
-	{
-	    final int[] textureHandle = new int[1];
-	 
+	@Override
+	protected void initWithGLContext() {
+		int[] textureHandle = new int[1];
 	    GLES20.glGenTextures(1, textureHandle, 0);
-	 
-	    if (textureHandle[0] != 0) {
-	 
-	        // Bind to the texture in OpenGL
-	        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
-	 
-	        // Set filtering
-	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-	 
-	        // Load the bitmap into the bound texture.
-	        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-	    }
-	 
-	    if (textureHandle[0] == 0)
-	    {
-	        throw new RuntimeException("Error loading texture.");
-	    }
-	 
-	    return textureHandle[0];
+	    texture_in = textureHandle[0];
+	    super.initWithGLContext();
+	}
+	
+	private void loadTexture() 	{	 
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture_in);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
 	}
 	
 	/**
@@ -169,20 +134,9 @@ public class ImageResourceInput extends BasicFilter {
 		return imageHeight;
 	}
 	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#onDrawFrame()
-	 */
 	@Override
-	public void onDrawFrame() {
-		if(!initialized) {
-			onSurfaceCreated();
-			initialized = true;
-		}
-		if(imageChanged) {
-			tex = loadTexture();
-			imageChanged = false;
-		}
-		newTextureReady(tex, this);
+	protected void drawFrame() {
+		loadTexture();
+		super.drawFrame();
 	}
-		
 }

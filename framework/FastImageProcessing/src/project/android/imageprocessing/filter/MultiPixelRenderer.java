@@ -38,18 +38,8 @@ public abstract class MultiPixelRenderer extends BasicFilter {
 	}
 	
 	@Override
-	protected void sizeChanged() {
-		texelWidth = 1.0f / (float)width;
-		texelHeight = 1.0f / (float)height;
-	}
-	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#setRenderSize(int, int)
-	 */
-	@Override
-	public void setRenderSize(int width, int height) {
-		super.setRenderSize(width, height);
-		texelWidth = 1.0f / (float)width;
-		texelHeight = 1.0f / (float)height;
+	protected void handleSizeChange() {
+		texelWidth = 1.0f / (float)getWidth();
+		texelHeight = 1.0f / (float)getHeight();
 	}
 }

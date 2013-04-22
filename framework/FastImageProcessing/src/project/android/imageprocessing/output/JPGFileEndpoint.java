@@ -49,17 +49,17 @@ public class JPGFileEndpoint extends GLRenderer implements GLTextureInputRendere
 	@Override
 	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
 		texture_in = texture;
-		width = source.getWidth();
-		height = source.getHeight();
+		setWidth(source.getWidth());
+		setHeight(source.getHeight());
 		onDrawFrame();
-		int[] pixels = new int[width*height];
+		int[] pixels = new int[getWidth()*getHeight()];
 		IntBuffer intBuffer = IntBuffer.wrap(pixels);
 		intBuffer.position(0);
-		GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, intBuffer);
+		GLES20.glReadPixels(0, 0, getWidth(), getHeight(), GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, intBuffer);
 		for(int i = 0; i < pixels.length; i++) {
 			pixels[i] = (pixels[i] & (0xFF00FF00)) | ((pixels[i] >> 16) & 0x000000FF) | ((pixels[i] << 16) & 0x00FF0000); //swap red and blue to translate back to bitmap rgb style
 		}
-		Bitmap image = Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888);
+		Bitmap image = Bitmap.createBitmap(pixels, getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
 		String filePathName;
 		if(increment) {
 			filePathName = filePath+curNumber+".jpg";

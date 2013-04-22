@@ -11,7 +11,6 @@ import project.android.imageprocessing.input.GLTextureOutputRenderer;
  */
 public class ScreenEndpoint extends GLRenderer implements GLTextureInputRenderer {
 	private FastImageProcessingPipeline rendererContext;
-	private boolean fullScreenTexture;
 	
 	/**
 	 * Creates a GLTextureToScreenRenderer. 
@@ -21,33 +20,25 @@ public class ScreenEndpoint extends GLRenderer implements GLTextureInputRenderer
 	 * @param fullScreenTexture
 	 * Whether or not to use the input filter size as the render size or to render full screen.
 	 */
-	public ScreenEndpoint(FastImageProcessingPipeline rendererContext, boolean fullScreenTexture) {
+	public ScreenEndpoint(FastImageProcessingPipeline rendererContext) {
 		super();
 		this.rendererContext = rendererContext;
-		this.fullScreenTexture = fullScreenTexture;
 	}
 	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.GLRenderer#onDrawFrame()
-	 */
-	public void onDrawFrame() {
-		if(width == 0 || height == 0) {
-			width = rendererContext.getWidth();
-			height = rendererContext.getHeight();
-		}
-		super.onDrawFrame();
+	@Override
+	protected void initWithGLContext() {
+		setRenderSize(rendererContext.getWidth(), rendererContext.getHeight());
+		super.initWithGLContext();
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see project.android.imageprocessing.output.GLTextureInputRenderer#newTextureReady(int, project.android.imageprocessing.input.GLTextureOutputRenderer)
 	 */
 	@Override
 	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
 		texture_in = texture;
-		if(!fullScreenTexture) {
-			width = source.getWidth();
-			height = source.getHeight();
-		}
+		setWidth(source.getWidth());
+		setHeight(source.getHeight());
 		onDrawFrame();
 	}
 }

@@ -18,9 +18,9 @@ public class BasicFilter extends GLTextureOutputRenderer implements GLTextureInp
 	@Override
 	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
 		texture_in = texture;
-		width = source.getWidth();
-		height = source.getHeight();
-		super.onDrawFrame();
+		setWidth(source.getWidth());
+		setHeight(source.getHeight());
+		onDrawFrame();
 	}
 	
 }

@@ -105,8 +105,8 @@ public abstract class MultiTextureFilter extends BasicFilter {
 				this.texture[pos] = texture;
 			}
 			if(pos == numOfEndpoints-1) {
-				width = source.getWidth();
-				height = source.getHeight();
+				setWidth(source.getWidth());
+				setHeight(source.getHeight());
 				super.onDrawFrame();
 			}
 		} else {

@@ -5,6 +5,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 /**
  * The base renderer class that all inputs, filters and endpoints must extend.  
@@ -27,11 +28,12 @@ public abstract class GLRenderer {
 	
 	protected int texture_in;
 	
-	protected int width;
-	protected int height;
+	private int width;
+	private int height;
 	
-	protected boolean customSizeSet;
-	protected boolean initialized;
+	private boolean customSizeSet;
+	private boolean initialized;
+	private boolean sizeChanged;
 	
 	public GLRenderer() {
 		initialized = false;
@@ -133,6 +135,8 @@ public abstract class GLRenderer {
 		curRotation = 0;
 		texture_in = 0;
 		customSizeSet = false;
+		initialized = false;
+		sizeChanged = false;
 	}
 	
 	/**
@@ -149,6 +153,20 @@ public abstract class GLRenderer {
 	 */
 	public int getHeight() {
 		return height;
+	}
+	
+	protected void setWidth(int width) {
+		if(!customSizeSet && this.width != width) {
+			this.width = width;
+			sizeChanged = true;
+		}
+	}
+	
+	protected void setHeight(int height) {
+		if(!customSizeSet && this.height != height) {
+			this.height = height;
+			sizeChanged = true;
+		}
 	}
 	
 	/**
@@ -184,7 +202,8 @@ public abstract class GLRenderer {
 	/**
 	 * Sets the render size of the renderer to the given width and height. 
 	 * This also prevents the size of the renderer from changing automatically 
-	 * when one of the source(s) of the renderer has a size change.
+	 * when one of the source(s) of the renderer has a size change.  If the renderer
+	 * has been rotated an odd number of times, the width and height will be swapped.
 	 * @param width
 	 * The width at which the renderer should draw at.
 	 * @param height
@@ -199,6 +218,7 @@ public abstract class GLRenderer {
 			this.width = width;
 			this.height = height;
 		}
+		sizeChanged = true;
 	}
 	
 	protected void passShaderValues() {
@@ -227,55 +247,22 @@ public abstract class GLRenderer {
 	
 	/**
 	 * Draws the given texture using OpenGL and the given vertex and fragment shaders.
-	  Calling of this method is handled by the {@link FastImageProcessingPipeline} and should not be called manually.
+	 * Calling of this method is handled by the {@link FastImageProcessingPipeline} or other filters
+	 * and should not be called manually.
 	 */
 	public void onDrawFrame() {
 		if(!initialized) {
-			onSurfaceCreated();
+			initWithGLContext();
 			initialized = true;
 		}
-		if(texture_in == 0) {
-			return;
+		if(sizeChanged) {
+			handleSizeChange();
+			sizeChanged = false;
 		}
-		GLES20.glViewport(0, 0, width, height);
-        GLES20.glUseProgram(programHandle);
-
-		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
-		GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1f);
-		
-		passShaderValues();
-		
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6); 
+		drawFrame();
 	}
 	
-	protected String getVertexShader() {
-		return 
-					"attribute vec4 "+ATTRIBUTE_POSITION+";\n"
-				  + "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"	
-				  + "varying vec2 "+VARYING_TEXCOORD+";\n"	
-				  
-				  + "void main() {\n"	
-				  + "  "+VARYING_TEXCOORD+" = "+ATTRIBUTE_TEXCOORD+";\n"
-				  + "   gl_Position = "+ATTRIBUTE_POSITION+";\n"		                                            			 
-				  + "}\n";
-	}
-
-	protected String getFragmentShader() {
-		return 
-				 "precision mediump float;\n" 
-				+"uniform sampler2D "+UNIFORM_TEXTURE0+";\n"  
-				+"varying vec2 "+VARYING_TEXCOORD+";\n"	
-				
-		  		+ "void main(){\n"
-		  		+ "   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+","+VARYING_TEXCOORD+");\n"	
-		  		+ "}\n";		
-	}
-	
-	/**
-	 * Sets up the OpenGL context for the given renderer.  Compiles the program along with the vertex and fragment shaders.
-	 * Calling of this method is handled by the {@link FastImageProcessingPipeline} and should not be called manually.
-	 */
-	public void onSurfaceCreated() {
+	protected void initWithGLContext() {
 		final String vertexShader = getVertexShader();
 		final String fragmentShader = getFragmentShader();									
 
@@ -311,41 +298,67 @@ public abstract class GLRenderer {
 			throw new RuntimeException("Could not create fragment shader.");
 		}
 
-			programHandle = GLES20.glCreateProgram();
-			if (programHandle != 0) {
-				GLES20.glAttachShader(programHandle, vertexShaderHandle);	
-				GLES20.glAttachShader(programHandle, fragmentShaderHandle);
-				
-				bindShaderAttributes();
-				
-				GLES20.glLinkProgram(programHandle);
-				final int[] linkStatus = new int[1];
-				GLES20.glGetProgramiv(programHandle, GLES20.GL_LINK_STATUS, linkStatus, 0);
-				if (linkStatus[0] == 0) {				
-					GLES20.glDeleteProgram(programHandle);
-					programHandle = 0;
-				}
+		programHandle = GLES20.glCreateProgram();
+		if (programHandle != 0) {
+			GLES20.glAttachShader(programHandle, vertexShaderHandle);	
+			GLES20.glAttachShader(programHandle, fragmentShaderHandle);
+			
+			bindShaderAttributes();
+			
+			GLES20.glLinkProgram(programHandle);
+			final int[] linkStatus = new int[1];
+			GLES20.glGetProgramiv(programHandle, GLES20.GL_LINK_STATUS, linkStatus, 0);
+			if (linkStatus[0] == 0) {				
+				GLES20.glDeleteProgram(programHandle);
+				programHandle = 0;
 			}
-			if (programHandle == 0) {
-				throw new RuntimeException("Could not create program.");
-			}
+		}
+		if (programHandle == 0) {
+			throw new RuntimeException("Could not create program.");
+		}
 
-	        initShaderHandles();
+        initShaderHandles();
 	}
 	
-	/**
-	 * An empty method that can be override if required by classes extending this renderer.
-	 * Calling of this method is handled by the {@link FastImageProcessingPipeline} and should not be called manually.
-	 */
-	public void onPause() {
+	protected void handleSizeChange() {
 		
 	}
 	
-	/**
-	 * An empty method that can be override if required by classes extending this renderer.
-	 * Calling of this method is handled by the {@link FastImageProcessingPipeline} and should not be called manually.
-	 */
-	public void onResume() {
+	protected void drawFrame() {
+		if(texture_in == 0) {
+			return;
+		}
+		GLES20.glViewport(0, 0, width, height);
+        GLES20.glUseProgram(programHandle);
+
+		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
+		GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1f);
 		
+		passShaderValues();
+		
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6); 
+	}
+	
+	protected String getVertexShader() {
+		return 
+					"attribute vec4 "+ATTRIBUTE_POSITION+";\n"
+				  + "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"	
+				  + "varying vec2 "+VARYING_TEXCOORD+";\n"	
+				  
+				  + "void main() {\n"	
+				  + "  "+VARYING_TEXCOORD+" = "+ATTRIBUTE_TEXCOORD+";\n"
+				  + "   gl_Position = "+ATTRIBUTE_POSITION+";\n"		                                            			 
+				  + "}\n";
+	}
+
+	protected String getFragmentShader() {
+		return 
+				 "precision mediump float;\n" 
+				+"uniform sampler2D "+UNIFORM_TEXTURE0+";\n"  
+				+"varying vec2 "+VARYING_TEXCOORD+";\n"	
+				
+		  		+ "void main(){\n"
+		  		+ "   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+","+VARYING_TEXCOORD+");\n"	
+		  		+ "}\n";		
 	}
 }

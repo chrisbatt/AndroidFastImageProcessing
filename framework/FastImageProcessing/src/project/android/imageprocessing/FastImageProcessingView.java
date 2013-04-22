@@ -33,7 +33,7 @@ public class FastImageProcessingView extends GLSurfaceView {
 	public FastImageProcessingView(Context context) {
 		super(context);	
 		setDebugFlags(GLSurfaceView.DEBUG_CHECK_GL_ERROR | GLSurfaceView.DEBUG_LOG_GL_CALLS);
-        setEGLContextClientVersion(2);	
+        setEGLContextClientVersion(2);
 	}
 	
 	/**
@@ -42,6 +42,7 @@ public class FastImageProcessingView extends GLSurfaceView {
 	 */
 	public void setPipeline(FastImageProcessingPipeline pipeline) {
 		setRenderer(pipeline);
+		setRenderMode(RENDERMODE_WHEN_DIRTY);
 	}
 
 }

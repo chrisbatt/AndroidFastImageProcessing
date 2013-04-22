@@ -49,8 +49,6 @@ public class FastImageProcessingPipeline implements Renderer {
 	 */
 	@Override
 	public void onDrawFrame(GL10 unused) {
-		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
-		GLES20.glClearColor(0, 0, 0, 1);
 		if(isRendering()) {
 			rootRenderer.onDrawFrame();
 		}
@@ -61,7 +59,6 @@ public class FastImageProcessingPipeline implements Renderer {
 	 */
 	public synchronized void pauseRendering() {
 		rendering = false;
-		Log.e("render", "paused");
 	}
 	
 	private synchronized boolean isRendering() {
@@ -91,7 +88,7 @@ public class FastImageProcessingPipeline implements Renderer {
 	 */
 	@Override
 	public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-		rootRenderer.onSurfaceCreated();
+		
 	}
 
 	/**

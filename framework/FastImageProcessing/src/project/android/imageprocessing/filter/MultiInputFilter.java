@@ -105,8 +105,8 @@ public abstract class MultiInputFilter extends BasicFilter {
 			this.texture[pos] = texture;
 		}
 		if(texturesReceived.size() == numOfInputs) {
-			width = source.getWidth();
-			height = source.getHeight();
+			setWidth(source.getWidth());
+			setHeight(source.getHeight());
 			super.onDrawFrame();
 		}		
 	}

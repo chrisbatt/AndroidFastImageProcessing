@@ -38,7 +38,7 @@ public class ImageProcessingActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		view = new FastImageProcessingView(this);
 		pipeline = new FastImageProcessingPipeline();
-		video = new VideoResourceInput(this, R.raw.inputvideo);
+		video = new VideoResourceInput(view, this, R.raw.inputvideo);
 		emboss = new ConvolutionFilter(new float[] {
 			-2, -1, 0,
 			-1, 1, 1,

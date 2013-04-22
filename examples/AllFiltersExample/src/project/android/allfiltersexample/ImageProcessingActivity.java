@@ -53,7 +53,7 @@ public class ImageProcessingActivity extends Activity {
 		pipeline = new FastImageProcessingPipeline();
 		view.setPipeline(pipeline);
 		setContentView(view);
-		image = new ImageResourceInput(this, R.drawable.tiger);
+		image = new ImageResourceInput(view, this, R.drawable.tiger);
 		filters = new BasicFilter[numOfFilters];
 		addFilter(new HueFilter(3.14f/6f));
 		addFilter(new ImageBrightnessFilter(0.5f));
@@ -75,7 +75,7 @@ public class ImageProcessingActivity extends Activity {
 		addFilter(new ImageGammaFilter(1.75f));
 		addFilter(new ImageLevelsFilter(0.2f,0.8f,1f,0f,1f));
 		
-		screen = new ScreenEndpoint(pipeline, true);
+		screen = new ScreenEndpoint(pipeline);
 		
 		image.addTarget(screen);
 		for(int i = 0; i < numOfFilters; i++) {
@@ -87,7 +87,6 @@ public class ImageProcessingActivity extends Activity {
 		view.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent e) {
 				if(System.currentTimeMillis() - touchTime > 100) {
-					Log.e("TOUCH", "touch");
 					pipeline.pauseRendering();
 					touchTime = System.currentTimeMillis();
 					if(curFilter == 0) {
@@ -102,7 +101,7 @@ public class ImageProcessingActivity extends Activity {
 						image.addTarget(filters[curFilter-1]);
 					}
 					pipeline.startRendering();
-					Log.e("TOUCH", "new filter set");
+					view.requestRender();
 				}
 				return false;
 			}
