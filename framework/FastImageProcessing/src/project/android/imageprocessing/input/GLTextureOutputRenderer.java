@@ -8,7 +8,6 @@ import project.android.imageprocessing.output.GLTextureInputRenderer;
 
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 /**
  * A output producing extension of GLRenderer.  
@@ -60,7 +59,7 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 		}
 	}
 	
-	private void initFBO() {
+	protected void initFBO() {
 		if(frameBuffer != null) {
 			GLES20.glDeleteFramebuffers(1, frameBuffer, 0);
 			frameBuffer = null;
@@ -82,6 +81,7 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 		
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer[0]);
 		
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture_out[0]);
 		GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGB, getWidth(), getHeight(), 0, GLES20.GL_RGB, GLES20.GL_UNSIGNED_SHORT_5_6_5, null);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
@@ -122,10 +122,21 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	}
 	
 	/**
-	 * Returns a list of all the targets that this renderer should send its output to.
+	 * Returns a list of all the targets that this renderer should send its output to.  Iterating over or changing this
+	 * list should be done in a synchronized block, locked using the object returned from getLockObject().
 	 * @return targets 
 	 */
 	public List<GLTextureInputRenderer> getTargets() {
 		return targets;
+	}
+	
+	/**
+	 * Returns the object used to lock the target list.  Iterating over or changing the target list
+	 * should be done in a synchronized block that is locked using the object return.
+	 * @return lock
+	 * the object which is used to lock the target list
+	 */
+	public Object getLockObject() {
+		return listLock;
 	}
 }

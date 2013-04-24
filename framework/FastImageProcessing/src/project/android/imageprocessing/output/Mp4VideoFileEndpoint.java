@@ -1,18 +1,10 @@
 package project.android.imageprocessing.output;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.IntBuffer;
 
 import com.googlecode.javacv.FrameRecorder.Exception;
 
-import android.graphics.Bitmap;
-import android.opengl.GLES20;
 import android.util.Log;
 import project.android.imageprocessing.GLRenderer;
 import project.android.imageprocessing.helper.ImageToVideoCreator;

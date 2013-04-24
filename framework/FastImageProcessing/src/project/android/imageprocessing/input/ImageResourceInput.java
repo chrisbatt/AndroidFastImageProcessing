@@ -1,13 +1,11 @@
 package project.android.imageprocessing.input;
 
-import project.android.imageprocessing.filter.BasicFilter;
+import project.android.imageprocessing.helper.ImageHelper;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLUtils;
-import android.util.Log;
 
 /**
  * A image input renderer extension of the BasicFilter. 
@@ -21,7 +19,6 @@ import android.util.Log;
  */
 public class ImageResourceInput extends GLTextureOutputRenderer {
 	private Context context;
-	private int tex;
 	private GLSurfaceView view;
 	private Bitmap bitmap;
 	private int imageWidth;
@@ -112,10 +109,7 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 	}
 	
 	private void loadTexture() 	{	 
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture_in);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+		texture_in = ImageHelper.bitmapToTexture(bitmap);
 	}
 	
 	/**

@@ -2,7 +2,6 @@ package project.android.imageprocessing.filter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import android.opengl.GLES20;
@@ -20,9 +19,9 @@ import android.opengl.GLES20;
 public abstract class MultiInputFilter extends BasicFilter {
 	private int numOfInputs;
 	private int[] textureHandle;
-	private int[] texture;
+	protected int[] texture;
 	private List<GLTextureOutputRenderer> texturesReceived;
-	private List<GLTextureOutputRenderer> filterLocations;
+	protected List<GLTextureOutputRenderer> filterLocations;
 	
 	/**
 	 * Creates a MultiInputFilter with any number of initial filters or filter graphs that produce a
@@ -44,20 +43,22 @@ public abstract class MultiInputFilter extends BasicFilter {
 	@Override
 	protected void passShaderValues() {
 		super.passShaderValues();
+		int tex = 0;
 		for(int i = 0; i < numOfInputs-1; i++) {
 			switch(i) {
-				case 0: GLES20.glActiveTexture(GLES20.GL_TEXTURE1); break;
-				case 1: GLES20.glActiveTexture(GLES20.GL_TEXTURE2); break;
-				case 2: GLES20.glActiveTexture(GLES20.GL_TEXTURE3); break;
-				case 3: GLES20.glActiveTexture(GLES20.GL_TEXTURE4); break;
-				case 4: GLES20.glActiveTexture(GLES20.GL_TEXTURE5); break;
-				case 5: GLES20.glActiveTexture(GLES20.GL_TEXTURE6); break;
-				case 6: GLES20.glActiveTexture(GLES20.GL_TEXTURE7); break;
-				case 7: GLES20.glActiveTexture(GLES20.GL_TEXTURE8); break;
-				case 8: GLES20.glActiveTexture(GLES20.GL_TEXTURE9); break;
+				case 0: tex = GLES20.GL_TEXTURE1; break;
+				case 1: tex = GLES20.GL_TEXTURE2; break;
+				case 2: tex = GLES20.GL_TEXTURE3; break;
+				case 3: tex = GLES20.GL_TEXTURE4; break;
+				case 4: tex = GLES20.GL_TEXTURE5; break;
+				case 5: tex = GLES20.GL_TEXTURE6; break;
+				case 6: tex = GLES20.GL_TEXTURE7; break;
+				case 7: tex = GLES20.GL_TEXTURE8; break;
+				case 8: tex = GLES20.GL_TEXTURE9; break;
 			}
-		    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[i+1]);
-			GLES20.glUniform1f(textureHandle[i+1], i+1);
+			GLES20.glActiveTexture(tex);
+		    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[i]);
+			GLES20.glUniform1i(textureHandle[i], i+1);
 		}
 	}
 	
@@ -65,10 +66,17 @@ public abstract class MultiInputFilter extends BasicFilter {
 	protected void initShaderHandles() {
 		super.initShaderHandles();
 		for(int i = 0; i < numOfInputs-1; i++) {
-			textureHandle[i+1] = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTUREBASE+i);
+			textureHandle[i] = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTUREBASE+(i+1));
 		}
 	}
 	
+	
+	/**
+	 * Removes all currently registered filters from filter location list.  
+	 */
+	public void clearRegisteredFilters() {
+		filterLocations.clear();
+	}
 	
 	/**
 	 * Registers the given filter in the given texture location.
@@ -102,12 +110,13 @@ public abstract class MultiInputFilter extends BasicFilter {
 		if(pos == 0) {
 			texture_in = texture;
 		} else {
-			this.texture[pos] = texture;
+			this.texture[pos-1] = texture;
 		}
 		if(texturesReceived.size() == numOfInputs) {
 			setWidth(source.getWidth());
 			setHeight(source.getHeight());
-			super.onDrawFrame();
+			onDrawFrame();
+			texturesReceived.clear();
 		}		
 	}
 }

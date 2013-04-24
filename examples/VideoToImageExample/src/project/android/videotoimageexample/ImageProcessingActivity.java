@@ -1,23 +1,14 @@
 package project.android.videotoimageexample;
 
-import java.io.IOException;
-
 import project.android.imageprocessing.FastImageProcessingPipeline;
 import project.android.imageprocessing.FastImageProcessingView;
 import project.android.imageprocessing.filter.BasicFilter;
-import project.android.imageprocessing.filter.colour.GreyScaleFilter;
 import project.android.imageprocessing.filter.processing.ConvolutionFilter;
-import project.android.imageprocessing.input.CameraPreviewInput;
 import project.android.imageprocessing.input.VideoResourceInput;
 import project.android.imageprocessing.output.JPGFileEndpoint;
-import project.android.imageprocessing.output.Mp4VideoFileEndpoint;
-import project.android.imageprocessing.output.ScreenEndpoint;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;

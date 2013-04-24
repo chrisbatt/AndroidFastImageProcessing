@@ -1,18 +1,9 @@
 package project.android.imageprocessing;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import project.android.imageprocessing.input.GLTextureOutputRenderer;
-import project.android.imageprocessing.output.GLTextureInputRenderer;
-
-
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
-import android.util.Log;
 
 
 /**
@@ -55,7 +46,8 @@ public class FastImageProcessingPipeline implements Renderer {
 	}
 	
 	/**
-	 * Pauses the rendering of the graph. This method should always be called before the alteration of the filter graph.
+	 * Pauses the rendering of the graph. This method should be called before the alteration of the filter graph; however,
+	 * altering the filter graph without pauses should still work.
 	 */
 	public synchronized void pauseRendering() {
 		rendering = false;
@@ -88,7 +80,8 @@ public class FastImageProcessingPipeline implements Renderer {
 	 */
 	@Override
 	public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-		
+		GLES20.glEnable(GLES20.GL_BLEND);
+		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	/**

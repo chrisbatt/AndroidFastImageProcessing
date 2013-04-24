@@ -5,7 +5,6 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 import android.opengl.GLES20;
-import android.util.Log;
 
 /**
  * The base renderer class that all inputs, filters and endpoints must extend.  
@@ -246,6 +245,12 @@ public abstract class GLRenderer {
 	}
 	
 	/**
+	 * Re-initializes the filter on the next drawing pass.
+	 */
+	public void reInitialize() {
+		initialized = false;
+	}
+	/**
 	 * Draws the given texture using OpenGL and the given vertex and fragment shaders.
 	 * Calling of this method is handled by the {@link FastImageProcessingPipeline} or other filters
 	 * and should not be called manually.
@@ -284,18 +289,20 @@ public abstract class GLRenderer {
 		}
 
 		int fragmentShaderHandle = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
+		String errorInfo = "none";
 		if (fragmentShaderHandle != 0) {
 			GLES20.glShaderSource(fragmentShaderHandle, fragmentShader);
 			GLES20.glCompileShader(fragmentShaderHandle);
 			final int[] compileStatus = new int[1];
 			GLES20.glGetShaderiv(fragmentShaderHandle, GLES20.GL_COMPILE_STATUS, compileStatus, 0);
-			if (compileStatus[0] == 0) {				
+			if (compileStatus[0] == 0) {	
+				errorInfo = GLES20.glGetShaderInfoLog(fragmentShaderHandle);
 				GLES20.glDeleteShader(fragmentShaderHandle);
 				fragmentShaderHandle = 0;
 			}
 		}
 		if (fragmentShaderHandle == 0) {
-			throw new RuntimeException("Could not create fragment shader.");
+			throw new RuntimeException("Could not create fragment shader. Reason: "+ errorInfo);
 		}
 
 		programHandle = GLES20.glCreateProgram();

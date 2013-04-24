@@ -1,8 +1,5 @@
 package project.android.imageprocessing.filter.colour;
 
-import project.android.imageprocessing.filter.BasicFilter;
-import android.opengl.GLES20;
-
 /**
  * A red, green and blue alteration filter extension of the BasicFilter. 
  * This class allows the alteration of each pixel by multiplying each of red, green

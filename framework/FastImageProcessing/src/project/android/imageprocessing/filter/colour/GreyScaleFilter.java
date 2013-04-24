@@ -15,10 +15,11 @@ public class GreyScaleFilter extends BasicFilter {
 				 "precision mediump float;\n" 
 				+"uniform sampler2D "+UNIFORM_TEXTURE0+";\n"  
 				+"varying vec2 "+VARYING_TEXCOORD+";\n"	
+				+"vec3 W = vec3(0.2125, 0.7154, 0.0721);\n"
 				
 		  		+"void main(){\n"
 		  		+"   vec4 color = texture2D("+UNIFORM_TEXTURE0+","+VARYING_TEXCOORD+");\n"	
-				+"   float grey =  color.r/3.0 + color.g/3.0 + color.b/3.0;"
+				+"   float grey =  dot(color.rgb, W);\n"
 				+"   gl_FragColor = vec4(grey, grey, grey, color.a);"
 		  		+"}\n";	
 	}

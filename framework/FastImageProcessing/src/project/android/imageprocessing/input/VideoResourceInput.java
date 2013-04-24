@@ -1,7 +1,5 @@
 package project.android.imageprocessing.input;
 
-import java.io.FileDescriptor;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -12,7 +10,6 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.graphics.SurfaceTexture.OnFrameAvailableListener;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnErrorListener;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;

@@ -1,7 +1,6 @@
 package project.android.imageprocessing.filter.colour;
 
 import android.opengl.GLES20;
-import android.util.Log;
 import project.android.imageprocessing.filter.BasicFilter;
 
 /**

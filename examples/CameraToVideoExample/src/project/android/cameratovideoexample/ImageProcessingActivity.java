@@ -1,19 +1,14 @@
 package project.android.cameratovideoexample;
 
-import java.io.File;
-
 import project.android.imageprocessing.FastImageProcessingPipeline;
 import project.android.imageprocessing.FastImageProcessingView;
 import project.android.imageprocessing.filter.BasicFilter;
-import project.android.imageprocessing.filter.colour.GreyScaleFilter;
 import project.android.imageprocessing.filter.processing.ConvolutionFilter;
 import project.android.imageprocessing.input.CameraPreviewInput;
 import project.android.imageprocessing.output.Mp4VideoFileEndpoint;
-import project.android.imageprocessing.output.ScreenEndpoint;
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
-import android.hardware.Camera;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
