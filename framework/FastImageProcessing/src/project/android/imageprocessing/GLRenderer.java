@@ -18,7 +18,8 @@ public abstract class GLRenderer {
 	protected static final String UNIFORM_TEXTURE0 = UNIFORM_TEXTUREBASE+0;
 	
 	protected int curRotation;
-	protected FloatBuffer[] squareVertices;
+	protected FloatBuffer renderVertices;
+	protected FloatBuffer[] textureVertices;
 	
 	protected int programHandle;
 	protected int textureHandle;
@@ -37,105 +38,61 @@ public abstract class GLRenderer {
 	public GLRenderer() {
 		initialized = false;
 		
-		squareVertices = new FloatBuffer[4];
+		setRenderVertices(new float[] {	  	        
+	        -1f, -1f,   
+	        1f, -1f,	   
+			-1f, 1f,       
+	        1f, 1f
+		});
 		
-		float[] squareData0 = {
-	        -1f, 1f, 0.0f,
-	        0f, 1f,
-	        
-	        1f, 1f, 0.0f,
-	        1f, 1f,
-	        
-	        1f, -1f, 0.0f,
-	        1f, 0f,
-	        
-	        -1f, 1f, 0.0f,
-	        0f, 1f,
-	        
-	        1f, -1f, 0.0f,
-	        1f, 0f,
-	        
-	        -1f, -1f, 0.0f,
-	        0f, 0f
+		textureVertices = new FloatBuffer[4];
+		
+		float[] texData0 = new float[] {
+	        0.0f, 0.0f,
+	        1.0f, 0.0f,
+	        0.0f, 1.0f,
+	        1.0f, 1.0f,
 		};
-	
-		squareVertices[0] = ByteBuffer.allocateDirect(squareData0.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
-		squareVertices[0].put(squareData0).position(0);
+		textureVertices[0] = ByteBuffer.allocateDirect(texData0.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
+		textureVertices[0].put(texData0).position(0);
 		
-		float[] squareData1 = {
-            -1f, 1f, 0.0f,
-            0f, 0f,
-            
-            1f, 1f, 0.0f,
-            0f, 1f,
-            
-            1f, -1f, 0.0f,
-            1f, 1f,
-            
-            -1f, 1f, 0.0f,
-            0f, 0f,
-            
-            1f, -1f, 0.0f,
-            1f, 1f,
-            
-            -1f, -1f, 0.0f,
-            1f, 0f
+		float[] texData1 = new float[] {
+	        0.0f, 1.0f,
+	        0.0f, 0.0f,
+	        1.0f, 1.0f,
+	        1.0f, 0.0f,
 		};
-
-		squareVertices[1] = ByteBuffer.allocateDirect(squareData1.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
-		squareVertices[1].put(squareData1).position(0);
+		textureVertices[1] = ByteBuffer.allocateDirect(texData1.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
+		textureVertices[1].put(texData1).position(0);
+			
+		float[] texData2 = new float[] {
+	        1.0f, 1.0f,
+	        0.0f, 1.0f,
+	        1.0f, 0.0f,
+	        0.0f, 0.0f,
+		};
+		textureVertices[2] = ByteBuffer.allocateDirect(texData2.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
+		textureVertices[2].put(texData2).position(0);
 		
-		float[] squareData2 = {
-	            -1f, 1f, 0.0f,
-	            1f, 0f,
-	            
-	            1f, 1f, 0.0f,
-	            0f, 0f,
-	            
-	            1f, -1f, 0.0f,
-	            0f, 1f,
-	            
-	            -1f, 1f, 0.0f,
-	            1f, 0f,
-	            
-	            1f, -1f, 0.0f,
-	            0f, 1f,
-	            
-	            -1f, -1f, 0.0f,
-	            1f, 1f
-			};
-
-			squareVertices[2] = ByteBuffer.allocateDirect(squareData2.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
-			squareVertices[2].put(squareData2).position(0);
-			
-			float[] squareData3 = {
-			    -1f, 1f, 0.0f,
-			    1f, 1f,
-			    
-			    1f, 1f, 0.0f,
-			    1f, 0f,
-			    
-			    1f, -1f, 0.0f,
-			    0f, 0f,
-			    
-			    -1f, 1f, 0.0f,
-			    1f, 1f,
-			    
-			    1f, -1f, 0.0f,
-			    0f, 0f,
-			    
-			    -1f, -1f, 0.0f,
-			    0f, 1f
-			};
-			
-			squareVertices[3] = ByteBuffer.allocateDirect(squareData3.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
-			squareVertices[3].put(squareData3).position(0);
+		float[] texData3 = new float[] {
+	        1.0f, 0.0f,
+	        1.0f, 1.0f,
+	        0.0f, 0.0f,
+	        0.0f, 1.0f,
+		};
+		textureVertices[3] = ByteBuffer.allocateDirect(texData3.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
+		textureVertices[3].put(texData3).position(0);
 		
 		curRotation = 0;
 		texture_in = 0;
 		customSizeSet = false;
 		initialized = false;
 		sizeChanged = false;
+	}
+	
+	protected void setRenderVertices(float[] vertices) {
+		renderVertices = ByteBuffer.allocateDirect(vertices.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
+		renderVertices.put(vertices).position(0);
 	}
 	
 	/**
@@ -221,11 +178,11 @@ public abstract class GLRenderer {
 	}
 	
 	protected void passShaderValues() {
-		squareVertices[curRotation].position(0);
-		GLES20.glVertexAttribPointer(positionHandle, 3, GLES20.GL_FLOAT, false, 20, squareVertices[curRotation]);  
+		renderVertices.position(0);
+		GLES20.glVertexAttribPointer(positionHandle, 2, GLES20.GL_FLOAT, false, 8, renderVertices);  
 		GLES20.glEnableVertexAttribArray(positionHandle); 
-		squareVertices[curRotation].position(3);
-		GLES20.glVertexAttribPointer(texCoordHandle, 2, GLES20.GL_FLOAT, false, 20, squareVertices[curRotation]);  
+		textureVertices[curRotation].position(0);
+		GLES20.glVertexAttribPointer(texCoordHandle, 2, GLES20.GL_FLOAT, false, 8, textureVertices[curRotation]);  
 		GLES20.glEnableVertexAttribArray(texCoordHandle); 
 		
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -343,7 +300,7 @@ public abstract class GLRenderer {
 		
 		passShaderValues();
 		
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6); 
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4); 
 	}
 	
 	protected String getVertexShader() {

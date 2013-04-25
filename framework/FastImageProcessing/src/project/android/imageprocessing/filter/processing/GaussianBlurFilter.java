@@ -2,30 +2,35 @@ package project.android.imageprocessing.filter.processing;
 
 import android.opengl.GLES20;
 import project.android.imageprocessing.filter.MultiPixelRenderer;
-import project.android.imageprocessing.filter.MultiTextureFilter;
+import project.android.imageprocessing.filter.GroupFilter;
 
-public class GaussianBlurFilter extends MultiTextureFilter {
-
+public class GaussianBlurFilter extends GroupFilter {
 	public GaussianBlurFilter(float blurSize) {
-		SinglePassGaussianBlurFilter firstPass = new SinglePassGaussianBlurFilter(blurSize);
-		SinglePassGaussianBlurFilter secondPass = new SinglePassGaussianBlurFilter(blurSize);
+		AbstractFilter firstPass = new AbstractFilter(blurSize, AbstractFilter.PASS_VERTICAL);
+		AbstractFilter secondPass = new AbstractFilter(blurSize, AbstractFilter.PASS_HORIZONTAL);
 		firstPass.addTarget(secondPass);
 		secondPass.addTarget(this);
 		
 		registerInitialFilter(firstPass);
-		registerTerminalFilter(secondPass);
+		registerTerminalFilter(secondPass);	
 	}
 	
-	private class SinglePassGaussianBlurFilter extends MultiPixelRenderer {	
+	private class AbstractFilter extends MultiPixelRenderer {
+		private static final int PASS_VERTICAL = 0;
+		private static final int PASS_HORIZONTAL = 1;
+		
+		private int passType;
+		
 		private static final String UNIFORM_BLUR_SIZE = "u_BlurSize";
 		
-		private float blurSize;
 		private int blurSizeHandle;
+		private float blurSize;
 		
-		public SinglePassGaussianBlurFilter(float blurSize) {
+		public AbstractFilter(float blurSize, int passType) {
 			this.blurSize = blurSize;
+			this.passType = passType;
 		}
-		
+			
 		@Override
 		protected void initShaderHandles() {
 			super.initShaderHandles();
@@ -37,6 +42,17 @@ public class GaussianBlurFilter extends MultiTextureFilter {
 			super.passShaderValues();
 			GLES20.glUniform1f(blurSizeHandle, blurSize);
 		} 
+		@Override
+		protected void handleSizeChange() {
+			switch(passType) {
+				case PASS_VERTICAL: texelWidth = 1.0f / (float)getWidth();
+									texelHeight = 0f;
+									break;
+				case PASS_HORIZONTAL: 	texelWidth = 0f;
+										texelHeight = 1.0f / (float)getHeight();
+										break;
+			}
+		}
 		
 		@Override
 		protected String getFragmentShader() {
@@ -59,19 +75,19 @@ public class GaussianBlurFilter extends MultiTextureFilter {
 					+"     blurStep = float(multiplier) * singleStepOffset;\n"
 					+"     blurCoordinates[i] = "+VARYING_TEXCOORD+".xy + blurStep;\n"
 					+"   }\n"
-					+"   vec4 sum = vec4(0,0,0,0);\n"
-					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[0]) * 0.05;"
-					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[1]) * 0.09;"
-					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[2]) * 0.12;"
-					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[3]) * 0.15;"
-					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[4]) * 0.18;"
-					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[5]) * 0.15;"
-					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[6]) * 0.12;"
-					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[7]) * 0.09;"
-					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[8]) * 0.05;"
-			  		+"   gl_FragColor = sum;\n"
+					+"   vec3 sum = vec3(0,0,0);\n"
+					+"   vec4 color = texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[4]);\n"
+					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[0]).rgb * 0.05;\n"
+					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[1]).rgb * 0.09;\n"
+					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[2]).rgb * 0.12;\n"
+					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[3]).rgb * 0.15;\n"
+					+"   sum += color.rgb * 0.18;\n"
+					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[5]).rgb * 0.15;\n"
+					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[6]).rgb * 0.12;\n"
+					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[7]).rgb * 0.09;\n"
+					+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[8]).rgb * 0.05;\n"
+			  		+"   gl_FragColor = vec4(sum, color.a);\n"
 			  		+"}\n";
 		}
 	}
-
 }

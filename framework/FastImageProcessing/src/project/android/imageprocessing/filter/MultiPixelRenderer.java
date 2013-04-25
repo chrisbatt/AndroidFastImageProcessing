@@ -11,8 +11,8 @@ public abstract class MultiPixelRenderer extends BasicFilter {
 	protected static final String UNIFORM_TEXELWIDTH = "u_TexelWidth";
 	protected static final String UNIFORM_TEXELHEIGHT = "u_TexelHeight";
 	
-	private float texelWidth;
-	private float texelHeight;
+	protected float texelWidth;
+	protected float texelHeight;
 	private int texelWidthHandle;
 	private int texelHeightHandle;
 	

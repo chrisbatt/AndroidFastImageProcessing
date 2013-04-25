@@ -20,7 +20,7 @@ public abstract class MultiInputFilter extends BasicFilter {
 	private int numOfInputs;
 	private int[] textureHandle;
 	protected int[] texture;
-	private List<GLTextureOutputRenderer> texturesReceived;
+	protected List<GLTextureOutputRenderer> texturesReceived;
 	protected List<GLTextureOutputRenderer> filterLocations;
 	
 	/**

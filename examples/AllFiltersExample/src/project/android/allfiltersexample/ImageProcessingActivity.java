@@ -34,12 +34,23 @@ import project.android.imageprocessing.filter.colour.ChromaKeyFilter;
 import project.android.imageprocessing.filter.processing.ConvolutionFilter;
 import project.android.imageprocessing.filter.processing.GaussianBlurFilter;
 import project.android.imageprocessing.filter.processing.BoxBlurFilter;
+import project.android.imageprocessing.filter.processing.GaussianBlurPositionFilter;
+import project.android.imageprocessing.filter.processing.GaussianSelectiveBlurFilter;
+import project.android.imageprocessing.filter.processing.SingleComponentFastBlurFilter;
+import project.android.imageprocessing.filter.processing.TransformFilter;
+import project.android.imageprocessing.filter.processing.MedianFilter;
+import project.android.imageprocessing.filter.processing.CropFilter;
+import project.android.imageprocessing.filter.processing.LanczosResamplingFilter;
+import project.android.imageprocessing.filter.processing.SharpenFilter;
+import project.android.imageprocessing.filter.processing.SingleComponentGaussianBlurFilter;
+import project.android.imageprocessing.filter.processing.FastBlurFilter;
+import project.android.imageprocessing.filter.processing.UnsharpMaskFilter;
 import project.android.imageprocessing.input.ImageResourceInput;
 import project.android.imageprocessing.output.ScreenEndpoint;
 import android.os.Bundle;
 import android.app.Activity;
 import android.graphics.Point;
-import android.util.Log;
+import android.graphics.PointF;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -70,7 +81,37 @@ public class ImageProcessingActivity extends Activity {
 		setContentView(view);
 		image = new ImageResourceInput(view, this, R.drawable.tiger);
 		filters = new ArrayList<BasicFilter>();
-		Log.e("FilterTest","starting");
+		addFilter(new MedianFilter());
+		GaussianBlurPositionFilter positionBlur = new GaussianBlurPositionFilter(2.3f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f);
+		positionBlur.registerFilter(image);
+		addFilter(positionBlur);
+		GaussianSelectiveBlurFilter selectBlur = new GaussianSelectiveBlurFilter(2.3f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f);
+		selectBlur.registerFilter(image);
+		addFilter(selectBlur);
+		addFilter(new SingleComponentGaussianBlurFilter(2.3f));
+		addFilter(new SingleComponentFastBlurFilter());
+		addFilter(new FastBlurFilter());
+		UnsharpMaskFilter unsharp = new UnsharpMaskFilter(2.0f, 0.5f);
+		unsharp.registerFilter(image);
+		addFilter(unsharp);
+		addFilter(new SharpenFilter(1f));
+		addFilter(new LanczosResamplingFilter(256, 128));
+		addFilter(new CropFilter(0.25f,0f,0.75f,1f));
+		BasicFilter cFilter1 = new CropFilter(0.25f,0f,0.75f,1f);
+		cFilter1.rotateClockwise90Degrees(1);
+		addFilter(cFilter1);
+		BasicFilter cFilter2 = new CropFilter(0.25f,0f,0.75f,1f);
+		cFilter2.rotateClockwise90Degrees(2);
+		addFilter(cFilter2);
+		BasicFilter cFilter3 = new CropFilter(0.25f,0f,0.75f,1f);
+		cFilter3.rotateClockwise90Degrees(3);
+		addFilter(cFilter3);
+		addFilter(new TransformFilter(new float[] {
+				1f, 0f, 0f, 0f,
+				0f, 1f, 0f, 0f,
+				0f, 0f, 1f, 0f,
+				-0.5f, 0f, 0f, 1f
+		}, false, false));
 		addFilter(new ChromaKeyFilter(new float[] {1.0f, 0.3f, 0.0f}, 0.4f, 0.1f));
 		addFilter(new AdaptiveThresholdFilter());
 		addFilter(new BoxBlurFilter());

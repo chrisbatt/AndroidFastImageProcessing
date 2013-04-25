@@ -1,20 +1,42 @@
 package project.android.imageprocessing.filter.processing;
 
 import project.android.imageprocessing.filter.MultiPixelRenderer;
-import project.android.imageprocessing.filter.MultiTextureFilter;
+import project.android.imageprocessing.filter.GroupFilter;
 
-public class BoxBlurFilter extends MultiTextureFilter {
+public class BoxBlurFilter extends GroupFilter {
+	
 	public BoxBlurFilter() {
-		SinglePassBoxBlurFilter firstPass = new SinglePassBoxBlurFilter();
-		SinglePassBoxBlurFilter secondPass = new SinglePassBoxBlurFilter();
+		AbstractFilter firstPass = new AbstractFilter(AbstractFilter.PASS_VERTICAL);
+		AbstractFilter secondPass = new AbstractFilter(AbstractFilter.PASS_HORIZONTAL);
 		firstPass.addTarget(secondPass);
 		secondPass.addTarget(this);
 		
 		registerInitialFilter(firstPass);
-		registerTerminalFilter(secondPass);		
+		registerTerminalFilter(secondPass);	
 	}
 	
-	private class SinglePassBoxBlurFilter extends MultiPixelRenderer {
+	private class AbstractFilter extends MultiPixelRenderer {
+		private static final int PASS_VERTICAL = 0;
+		private static final int PASS_HORIZONTAL = 1;
+		
+		private int passType;
+		
+		public AbstractFilter(int passType) {
+			this.passType = passType;
+		}
+		
+		@Override
+		protected void handleSizeChange() {
+			switch(passType) {
+				case PASS_VERTICAL: texelWidth = 1.0f / (float)getWidth();
+									texelHeight = 0f;
+									break;
+				case PASS_HORIZONTAL: 	texelWidth = 0f;
+										texelHeight = 1.0f / (float)getHeight();
+										break;
+			}
+		}
+		
 		@Override
 		protected String getFragmentShader() {
 			return 

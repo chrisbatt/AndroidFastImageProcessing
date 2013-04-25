@@ -15,7 +15,7 @@ import project.android.imageprocessing.output.GLTextureInputRenderer;
  * override to return a more useful fragment shader.
  * @author Chris Batt
  */
-public abstract class MultiTextureFilter extends BasicFilter {
+public abstract class GroupFilter extends BasicFilter {
 	
 	private List<BasicFilter> initialFilters;
 	private List<BasicFilter> terminalFilters;
@@ -24,7 +24,7 @@ public abstract class MultiTextureFilter extends BasicFilter {
 	 * Creates a MultiInputFilter with any number of initial filters or filter graphs that produce a
 	 * set number of textures which can be used by this filter.
 	 */
-	public MultiTextureFilter() {
+	public GroupFilter() {
 		initialFilters = new ArrayList<BasicFilter>();
 		terminalFilters = new ArrayList<BasicFilter>();
 	}
@@ -50,6 +50,8 @@ public abstract class MultiTextureFilter extends BasicFilter {
 	@Override
 	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
 		if(terminalFilters.contains(source)) {
+			setWidth(source.getWidth());
+			setHeight(source.getHeight());
 			synchronized(getLockObject()) {
 				for(GLTextureInputRenderer target : getTargets()) {
 					target.newTextureReady(texture, this);
@@ -60,6 +62,12 @@ public abstract class MultiTextureFilter extends BasicFilter {
 				initialFilter.newTextureReady(texture, source);
 			}
 		}
-		
+	}
+	
+	@Override
+	public void setRenderSize(int width, int height) {
+		for(BasicFilter initialFilter : initialFilters) {
+			initialFilter.setRenderSize(width, height);
+		}
 	}
 }

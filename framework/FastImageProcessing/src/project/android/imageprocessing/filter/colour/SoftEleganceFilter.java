@@ -2,11 +2,11 @@ package project.android.imageprocessing.filter.colour;
 
 import android.content.Context;
 import project.android.fastimageprocessing.R;
-import project.android.imageprocessing.filter.MultiTextureFilter;
+import project.android.imageprocessing.filter.GroupFilter;
 import project.android.imageprocessing.filter.blend.AlphaBlendFilter;
 import project.android.imageprocessing.filter.processing.GaussianBlurFilter;
 
-public class SoftEleganceFilter extends MultiTextureFilter {
+public class SoftEleganceFilter extends GroupFilter {
 
 	public SoftEleganceFilter(Context context) {
 		LookupFilter img1 = new LookupFilter(context, R.drawable.lookup_soft_elegance_1);

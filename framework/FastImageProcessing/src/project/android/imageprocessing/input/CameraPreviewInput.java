@@ -103,11 +103,11 @@ public class CameraPreviewInput extends GLTextureOutputRenderer implements OnFra
 
 	@Override
 	protected void passShaderValues() {
-		squareVertices[curRotation].position(0);
-		GLES20.glVertexAttribPointer(positionHandle, 3, GLES20.GL_FLOAT, false, 20, squareVertices[curRotation]);  
+		renderVertices.position(0);
+		GLES20.glVertexAttribPointer(positionHandle, 2, GLES20.GL_FLOAT, false, 8, renderVertices);  
 		GLES20.glEnableVertexAttribArray(positionHandle); 
-		squareVertices[curRotation].position(3);
-		GLES20.glVertexAttribPointer(texCoordHandle, 2, GLES20.GL_FLOAT, false, 20, squareVertices[curRotation]);  
+		textureVertices[curRotation].position(0);
+		GLES20.glVertexAttribPointer(texCoordHandle, 2, GLES20.GL_FLOAT, false, 8, textureVertices[curRotation]);  
 		GLES20.glEnableVertexAttribArray(texCoordHandle); 
 		
 		bindTexture();
