@@ -3,13 +3,13 @@ package project.android.imageprocessing.filter.blend;
 import android.opengl.GLES20;
 import project.android.imageprocessing.filter.MultiInputFilter;
 
-public class AlphaBlendFilter extends MultiInputFilter {
+public class DissolveBlendFilter extends MultiInputFilter {
 	private static final String UNIFORM_MIX_PERCENT = "u_MixPercent";
 	
 	private float mixPercent;
 	private int mixPercentHandle;
 
-	public AlphaBlendFilter(float mixPercent) {
+	public DissolveBlendFilter(float mixPercent) {
 		super(2);
 		this.mixPercent = mixPercent;
 	}
@@ -36,10 +36,9 @@ public class AlphaBlendFilter extends MultiInputFilter {
 				+"uniform float "+UNIFORM_MIX_PERCENT+";\n"
 				
 		  		+"void main(){\n"
-				+"   vec4 tex1 = texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+");\n"
-				+"   vec4 tex2 = texture2D("+UNIFORM_TEXTUREBASE+1+", "+VARYING_TEXCOORD+");\n"
-		  		+"   gl_FragColor = vec4(mix(tex1.rgb, tex2.rgb, tex2.a * "+UNIFORM_MIX_PERCENT+"), tex1.a);\n"
-		  		+"}\n";
+		  		+"   vec4 color1 = texture2D("+UNIFORM_TEXTURE0+","+VARYING_TEXCOORD+");\n"
+		  		+"   vec4 color2 = texture2D("+UNIFORM_TEXTUREBASE+1+","+VARYING_TEXCOORD+");\n"
+		  		+"   gl_FragColor = mix(color1, color2, "+UNIFORM_MIX_PERCENT+");\n"
+		  		+"}\n";	
 	}
-
 }
