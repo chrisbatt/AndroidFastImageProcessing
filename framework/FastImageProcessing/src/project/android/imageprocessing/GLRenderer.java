@@ -22,6 +22,8 @@ public abstract class GLRenderer {
 	protected FloatBuffer[] textureVertices;
 	
 	protected int programHandle;
+	private int vertexShaderHandle;
+	private int fragmentShaderHandle;
 	protected int textureHandle;
 	protected int positionHandle;
 	protected int texCoordHandle;
@@ -224,29 +226,47 @@ public abstract class GLRenderer {
 		drawFrame();
 	}
 	
+	public void destroy() {
+		initialized = false;
+		if(programHandle != 0) {
+			GLES20.glDeleteProgram(programHandle);
+			programHandle = 0;
+		}
+		if(vertexShaderHandle != 0) {
+			GLES20.glDeleteShader(vertexShaderHandle);
+			vertexShaderHandle = 0;
+		}
+		if(fragmentShaderHandle != 0) {
+			GLES20.glDeleteShader(fragmentShaderHandle);
+			fragmentShaderHandle = 0;
+		}
+		
+	}
+	
 	protected void initWithGLContext() {
 		final String vertexShader = getVertexShader();
 		final String fragmentShader = getFragmentShader();									
 
-		int vertexShaderHandle = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
+		vertexShaderHandle = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
 
+		String errorInfo = "none";
 		if (vertexShaderHandle != 0) {
 			GLES20.glShaderSource(vertexShaderHandle, vertexShader);
 			GLES20.glCompileShader(vertexShaderHandle);
 			final int[] compileStatus = new int[1];
 			GLES20.glGetShaderiv(vertexShaderHandle, GLES20.GL_COMPILE_STATUS, compileStatus, 0);
-			if (compileStatus[0] == 0) {				
+			if (compileStatus[0] == 0) {		
+				errorInfo = GLES20.glGetShaderInfoLog(vertexShaderHandle);		
 				GLES20.glDeleteShader(vertexShaderHandle);
 				vertexShaderHandle = 0;
 			}
 		}
 
 		if (vertexShaderHandle == 0) {
-			throw new RuntimeException("Could not create vertex shader.");
+			throw new RuntimeException("Could not create vertex shader. Reason: "+ errorInfo);
 		}
 
-		int fragmentShaderHandle = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
-		String errorInfo = "none";
+		fragmentShaderHandle = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
 		if (fragmentShaderHandle != 0) {
 			GLES20.glShaderSource(fragmentShaderHandle, fragmentShader);
 			GLES20.glCompileShader(fragmentShaderHandle);

@@ -20,6 +20,8 @@ public class GaussianBlurPositionFilter extends CompositeFilter {
 	private int excludedCirclePointHandle;
 	private int excludedCircleRadiusHandle;
 	
+	private GaussianBlurFilter blur;
+	
 	public GaussianBlurPositionFilter(float blurSize, float aspectRatio, PointF excludedCirclePoint, float excludedCircleRadius, float excludedBlurSize) {
 		super(2);
 		this.blurSize = excludedBlurSize;
@@ -27,17 +29,12 @@ public class GaussianBlurPositionFilter extends CompositeFilter {
 		this.excludedCirclePoint = excludedCirclePoint;
 		this.excludedCircleRadius = excludedCircleRadius;
 		
-		GaussianBlurFilter blur = new GaussianBlurFilter(blurSize);
+		blur = new GaussianBlurFilter(blurSize);
 		blur.addTarget(this);
 
-		super.registerFilter(blur);
+		registerFilter(blur);
 		registerInitialFilter(blur);
 		registerTerminalFilter(blur);
-	}
-	
-	public void registerFilter(GLTextureOutputRenderer filter) {
-		registerFilter(filter, 0);
-		registerInputOutputFilter(filter);
 	}
 	
 	@Override
@@ -57,6 +54,17 @@ public class GaussianBlurPositionFilter extends CompositeFilter {
 		GLES20.glUniform1f(excludedCircleRadiusHandle, excludedCircleRadius);
 		GLES20.glUniform2f(excludedCirclePointHandle, excludedCirclePoint.x, excludedCirclePoint.y);
 	} 
+	
+	@Override
+	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
+		if(filterLocations.size() < 2 || !filterLocations.get(0).equals(source)) {
+			clearRegisteredFilters();
+			registerFilter(source, 0);
+			registerFilter(blur, 1);
+			registerInputOutputFilter(source);
+		}
+		super.newTextureReady(texture, source);
+	}
 	
 	@Override
 	protected String getFragmentShader() {

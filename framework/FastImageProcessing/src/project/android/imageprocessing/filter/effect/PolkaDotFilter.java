@@ -33,7 +33,7 @@ public class PolkaDotFilter extends PixellateFilter {
 				+"varying vec2 "+VARYING_TEXCOORD+";\n"	
 				+"uniform float "+UNIFORM_FRACTIONAL_WIDTH+";\n"	
 				+"uniform float "+UNIFORM_ASPECT_RATIO+";\n"
-				+"uniform float "+UNIFORM_DOT_SCALING+";\n"
+				+"uniform highp float "+UNIFORM_DOT_SCALING+";\n"
 				
 		  		+"void main(){\n"
 		  		+"   highp vec2 sampleDivisor = vec2("+UNIFORM_FRACTIONAL_WIDTH+", "+UNIFORM_FRACTIONAL_WIDTH+" /  "+UNIFORM_ASPECT_RATIO+");\n"

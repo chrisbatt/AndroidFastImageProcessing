@@ -10,21 +10,18 @@ public class UnsharpMaskFilter extends CompositeFilter {
 	private float intensity;
 	private int intensityHandle;
 	
+	private GaussianBlurFilter blur;
+	
 	public UnsharpMaskFilter(float blurSize, float intensity) {
 		super(2);
 		this.intensity = intensity;
 		
-		GaussianBlurFilter blur = new GaussianBlurFilter(blurSize);
+		blur = new GaussianBlurFilter(blurSize);
 		blur.addTarget(this);
 
-		super.registerFilter(blur);
+		registerFilter(blur);
 		registerInitialFilter(blur);
 		registerTerminalFilter(blur);
-	}
-	
-	public void registerFilter(GLTextureOutputRenderer filter) {
-		registerFilter(filter, 0);
-		registerInputOutputFilter(filter);
 	}
 		
 	@Override
@@ -38,6 +35,17 @@ public class UnsharpMaskFilter extends CompositeFilter {
 		super.passShaderValues();
 		GLES20.glUniform1f(intensityHandle, intensity);
 	} 
+	
+	@Override
+	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
+		if(filterLocations.size() < 2 || !filterLocations.get(0).equals(source)) {
+			clearRegisteredFilters();
+			registerFilter(source, 0);
+			registerFilter(blur, 1);
+			registerInputOutputFilter(source);
+		}
+		super.newTextureReady(texture, source);
+	}
 	
 	@Override
 	protected String getFragmentShader() {

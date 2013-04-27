@@ -3,7 +3,9 @@ package project.android.imageprocessing.filter.colour;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.opengl.GLES20;
 import project.android.imageprocessing.filter.MultiInputFilter;
+import project.android.imageprocessing.filter.processing.FlipFilter;
 import project.android.imageprocessing.helper.ImageHelper;
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
 
@@ -19,37 +21,29 @@ public class LookupFilter extends MultiInputFilter {
 	}
 	
 	@Override
-	protected void initWithGLContext() {
-		super.initWithGLContext();
-		lookup_texture = ImageHelper.bitmapToTexture(lookupBitmap);
-        texture[0] = lookup_texture;
-	}
-	
-	@Override
 	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
 		if(filterLocations.size() < 2 || !source.equals(filterLocations.get(0))) {
 			clearRegisteredFilters();
 			registerFilter(source, 0);
 			registerFilter(this, 1);
 		}
-		
+		if(lookup_texture == 0) {
+			lookup_texture = ImageHelper.bitmapToTexture(lookupBitmap);
+		}
 		super.newTextureReady(lookup_texture, this);
 		super.newTextureReady(texture, source);
 	}
 	
+	
 	@Override
-	protected String getVertexShader() {
-		return
-					"attribute vec4 "+ATTRIBUTE_POSITION+";\n"
-				  + "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"	
-				  + "attribute vec4 "+ATTRIBUTE_POSITION+1+";\n"
-				  + "attribute vec2 "+ATTRIBUTE_TEXCOORD+1+";\n"
-				  + "varying vec2 "+VARYING_TEXCOORD+";\n"	
-				  
-				  + "void main() {\n"	
-				  + "  "+VARYING_TEXCOORD+" = "+ATTRIBUTE_TEXCOORD+";\n"
-				  + "   gl_Position = "+ATTRIBUTE_POSITION+";\n"		                                            			 
-				  + "}\n";
+	public void destroy() {
+		super.destroy();
+		if(lookup_texture != 0) {
+			int[] tex = new int[1];
+			tex[0] = lookup_texture;
+			GLES20.glDeleteTextures(1, tex, 0);
+			lookup_texture = 0;
+		}
 	}
 	
 	@Override

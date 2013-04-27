@@ -1,5 +1,9 @@
 package project.android.imageprocessing.input;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
 import project.android.imageprocessing.helper.ImageHelper;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -23,6 +27,7 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 	private Bitmap bitmap;
 	private int imageWidth;
 	private int imageHeight;
+	private boolean newBitmap;
 	
 	/**
 	 * Creates a GLImageToTextureRenderer using the given resourceId as the image input. 
@@ -36,7 +41,6 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 		this.context = context;
 		this.view = view;
 		setImage(resourceId);
-		curRotation = 2;
 	}
 	
 	/**
@@ -47,7 +51,6 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 	public ImageResourceInput(GLSurfaceView view, String pathName) {
 		this.view = view;
 		setImage(pathName);
-		curRotation = 2;
 	}
 	
 	/**
@@ -58,7 +61,6 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 	public ImageResourceInput(GLSurfaceView view, Bitmap bitmap) {
 		this.view = view;
 		setImage(bitmap);
-		curRotation = 2;
 	}
 	
 	/**
@@ -97,19 +99,55 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
         imageWidth = bitmap.getWidth();
         imageHeight = bitmap.getHeight();
 		setRenderSize(imageWidth, imageHeight);
+		newBitmap = true;
+		textureVertices = new FloatBuffer[4];
+		
+		float[] texData0 = new float[] {
+	        0.0f, 1.0f,
+	        1.0f, 1.0f,
+	        0.0f, 0.0f,
+	        1.0f, 0.0f,
+		};
+		textureVertices[0] = ByteBuffer.allocateDirect(texData0.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
+		textureVertices[0].put(texData0).position(0);
+		
+		float[] texData1 = new float[] {
+	        1.0f, 1.0f,
+	        1.0f, 0.0f,
+	        0.0f, 1.0f,
+	        0.0f, 0.0f,
+		};
+		textureVertices[1] = ByteBuffer.allocateDirect(texData1.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
+		textureVertices[1].put(texData1).position(0);
+			
+		float[] texData2 = new float[] {
+	        1.0f, 0.0f,
+	        0.0f, 0.0f,
+	        1.0f, 1.0f,
+	        0.0f, 1.0f,
+		};
+		textureVertices[2] = ByteBuffer.allocateDirect(texData2.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
+		textureVertices[2].put(texData2).position(0);
+		
+		float[] texData3 = new float[] {
+	        0.0f, 0.0f,
+	        0.0f, 1.0f,
+	        1.0f, 0.0f,
+	        1.0f, 1.0f,
+		};
+		textureVertices[3] = ByteBuffer.allocateDirect(texData3.length * 4).order(ByteOrder. nativeOrder()).asFloatBuffer();
+		textureVertices[3].put(texData3).position(0);
 		view.requestRender();
 	}
 	
-	@Override
-	protected void initWithGLContext() {
-		int[] textureHandle = new int[1];
-	    GLES20.glGenTextures(1, textureHandle, 0);
-	    texture_in = textureHandle[0];
-	    super.initWithGLContext();
-	}
-	
-	private void loadTexture() 	{	 
+	private void loadTexture() 	{	
+		if(texture_in != 0) {
+			int[] tex = new int[1];
+			tex[0] = texture_in;
+			GLES20.glDeleteTextures(1, tex, 0);
+		}
 		texture_in = ImageHelper.bitmapToTexture(bitmap);
+		newBitmap = false;
 	}
 	
 	/**
@@ -130,7 +168,9 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 	
 	@Override
 	protected void drawFrame() {
-		loadTexture();
+		if(newBitmap) {
+			loadTexture();
+		}
 		super.drawFrame();
 	}
 }

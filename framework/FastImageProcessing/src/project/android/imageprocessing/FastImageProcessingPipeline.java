@@ -1,4 +1,7 @@
 package project.android.imageprocessing;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -19,11 +22,14 @@ public class FastImageProcessingPipeline implements Renderer {
 	private int width;
 	private int height;
 	
+	private List<GLRenderer> filtersToDestroy;
+	
 	/**
 	 * Creates a FastImageProcessingPipeline with the initial state as paused and having no rootRenderer.
 	 */
 	public FastImageProcessingPipeline() {
 		rendering = false;
+		filtersToDestroy = new ArrayList<GLRenderer>();
 	}
 	
 	/**
@@ -42,6 +48,18 @@ public class FastImageProcessingPipeline implements Renderer {
 	public void onDrawFrame(GL10 unused) {
 		if(isRendering()) {
 			rootRenderer.onDrawFrame();
+		}
+		synchronized(filtersToDestroy) {
+			for(GLRenderer renderer : filtersToDestroy) {
+				renderer.destroy();
+			}
+			filtersToDestroy.clear();
+		}
+	}
+	
+	public void addFilterToDestroy(GLRenderer renderer) {
+		synchronized(filtersToDestroy) {
+			filtersToDestroy.add(renderer);
 		}
 	}
 	

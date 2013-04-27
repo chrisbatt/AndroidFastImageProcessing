@@ -31,38 +31,13 @@ import project.android.imageprocessing.filter.colour.OpacityFilter;
 import project.android.imageprocessing.filter.colour.LuminanceThresholdFilter;
 import project.android.imageprocessing.filter.colour.AdaptiveThresholdFilter;
 import project.android.imageprocessing.filter.colour.ChromaKeyFilter;
-import project.android.imageprocessing.filter.processing.ConvolutionFilter;
-import project.android.imageprocessing.filter.processing.BilateralBlurFilter;
-import project.android.imageprocessing.filter.processing.BoxBlurFilter;
-import project.android.imageprocessing.filter.processing.DilationRGBFilter;
-import project.android.imageprocessing.filter.processing.FastBlurFilter;
-import project.android.imageprocessing.filter.processing.GaussianBlurFilter;
-import project.android.imageprocessing.filter.processing.GaussianBlurPositionFilter;
-import project.android.imageprocessing.filter.processing.GaussianSelectiveBlurFilter;
-import project.android.imageprocessing.filter.processing.SingleComponentFastBlurFilter;
-import project.android.imageprocessing.filter.processing.CannyEdgeDetectionFilter;
-import project.android.imageprocessing.filter.processing.SingleComponentGaussianBlurFilter;
-import project.android.imageprocessing.filter.processing.ThresholdEdgeDetectionFilter;
-import project.android.imageprocessing.filter.processing.TiltShiftFilter;
-import project.android.imageprocessing.filter.processing.TransformFilter;
-import project.android.imageprocessing.filter.processing.MedianFilter;
-import project.android.imageprocessing.filter.processing.CropFilter;
-import project.android.imageprocessing.filter.processing.LanczosResamplingFilter;
-import project.android.imageprocessing.filter.processing.SharpenFilter;
-import project.android.imageprocessing.filter.processing.DilationFilter;
-import project.android.imageprocessing.filter.processing.ErosionFilter;
-import project.android.imageprocessing.filter.processing.ErosionRGBFilter;
-import project.android.imageprocessing.filter.processing.SobelEdgeDetectionFilter;
-import project.android.imageprocessing.filter.processing.OpeningFilter;
-import project.android.imageprocessing.filter.processing.OpeningRGBFilter;
-import project.android.imageprocessing.filter.processing.ClosingFilter;
-import project.android.imageprocessing.filter.processing.ClosingRGBFilter;
-import project.android.imageprocessing.filter.processing.MotionBlurFilter;
-import project.android.imageprocessing.filter.processing.UnsharpMaskFilter;
-import project.android.imageprocessing.filter.processing.ZoomBlurFilter;
+import project.android.imageprocessing.filter.processing.*;
 import project.android.imageprocessing.filter.effect.*;
+import project.android.imageprocessing.input.CameraPreviewInput;
+import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import project.android.imageprocessing.input.ImageResourceInput;
 import project.android.imageprocessing.output.ScreenEndpoint;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
 import android.graphics.Point;
@@ -77,7 +52,7 @@ public class ImageProcessingActivity extends Activity {
 	private FastImageProcessingView view;
 	private List<BasicFilter> filters;
 	private int curFilter;
-	private ImageResourceInput image;
+	private GLTextureOutputRenderer input;
 	private long touchTime;
 	private FastImageProcessingPipeline pipeline;
 	private ScreenEndpoint screen;
@@ -95,10 +70,32 @@ public class ImageProcessingActivity extends Activity {
 		pipeline = new FastImageProcessingPipeline();
 		view.setPipeline(pipeline);
 		setContentView(view);
-		image = new ImageResourceInput(view, this, R.drawable.tiger);
+		/*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			input = new CameraPreviewInput(view);
+	    } else {*/
+			input = new ImageResourceInput(view, this, R.drawable.tiger);
+	    //}
 		filters = new ArrayList<BasicFilter>();
 		
-		addFilter(new CrosshatchFilter(0.03f, 0.03f));
+		addFilter(new FlipFilter(FlipFilter.FLIP_HORIZONTAL));
+		addFilter(new MosaicFilter(this, R.drawable.webcircles, new PointF(0.125f, 0.125f), new PointF(0.025f, 0.025f), 64, true));
+		addFilter(new CGAColourSpaceFilter());
+		addFilter(new KuwaharaRadius3Filter());
+		addFilter(new KuwaharaFilter(4));
+		addFilter(new VignetteFilter(new PointF(0.5f, 0.5f), new float[] {0.3f, 0.8f, 0.3f}, 0.3f, 0.75f)); 
+		addFilter(new GlassSphereFilter(new PointF(0.43f, 0.5f), 0.25f, 0.71f, 0.5f));
+		addFilter(new SphereRefractionFilter(new PointF(0.43f, 0.5f), 0.25f, 0.71f, 0.5f));
+		addFilter(new StretchDistortionFilter(new PointF(0.5f, 0.5f)));
+		addFilter(new PinchDistortionFilter(new PointF(0.43f, 0.5f), 0.25f, 0.5f, 0.5f));
+		addFilter(new BulgeDistortionFilter(new PointF(0.43f, 0.5f), 0.25f, 0.5f, 0.5f));
+		addFilter(new SwirlFilter(new PointF(0.4f, 0.5f), 0.5f, 1f));
+		addFilter(new PosterizeFilter(2f));
+		addFilter(new EmbossFilter(1.5f));
+		addFilter(new SmoothToonFilter(0.25f, 0.5f, 5f));
+		addFilter(new ToonFilter(0.4f, 10f));
+		addFilter(new ThresholdSketchFilter(0.7f));
+		addFilter(new SketchFilter());
+		addFilter(new CrosshatchFilter(0.005f, 0.0025f));
 		addFilter(new HalftoneFilter(0.01f, 1f));
 		addFilter(new PolkaDotFilter(0.9f, 0.03f, 1f));
 		addFilter(new PolarPixellateFilter(new PointF(0.4f, 0.5f), new PointF(0.05f, 0.05f)));
@@ -116,23 +113,15 @@ public class ImageProcessingActivity extends Activity {
 		addFilter(new CannyEdgeDetectionFilter(1.0f, 0.1f, 0.4f));
 		addFilter(new ThresholdEdgeDetectionFilter(0.6f));
 		addFilter(new SobelEdgeDetectionFilter());
-		TiltShiftFilter tiltShift = new TiltShiftFilter(2f, 0.4f, 0.6f, 0.2f);
-		tiltShift.registerFilter(image);
-		addFilter(tiltShift);
+		addFilter(new TiltShiftFilter(2f, 0.4f, 0.6f, 0.2f));
 		addFilter(new BilateralBlurFilter(1f));
 		addFilter(new MedianFilter());
-		GaussianBlurPositionFilter positionBlur = new GaussianBlurPositionFilter(2.3f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f);
-		positionBlur.registerFilter(image);
-		addFilter(positionBlur);
-		GaussianSelectiveBlurFilter selectBlur = new GaussianSelectiveBlurFilter(2.3f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f);
-		selectBlur.registerFilter(image);
-		addFilter(selectBlur);
+		addFilter(new GaussianBlurPositionFilter(2.3f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f));
+		addFilter(new GaussianSelectiveBlurFilter(2.3f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f));
 		addFilter(new SingleComponentGaussianBlurFilter(2.3f));
 		addFilter(new SingleComponentFastBlurFilter());
 		addFilter(new FastBlurFilter());
-		UnsharpMaskFilter unsharp = new UnsharpMaskFilter(2.0f, 0.5f);
-		unsharp.registerFilter(image);
-		addFilter(unsharp);
+		addFilter(new UnsharpMaskFilter(2.0f, 0.5f));
 		addFilter(new SharpenFilter(1f));
 		addFilter(new LanczosResamplingFilter(256, 128));
 		addFilter(new CropFilter(0.25f,0f,0.75f,1f));
@@ -168,7 +157,7 @@ public class ImageProcessingActivity extends Activity {
 		addFilter(new LookupFilter(this, R.drawable.lookup_soft_elegance_1));
 		addFilter(new HighlightShadowFilter(0f, 1f));
 		Point[] defaultCurve = new Point[] {new Point(128,128), new Point(64,0), new Point(192,255)};
-		addFilter(new ToneCurveFilter(defaultCurve,defaultCurve,defaultCurve,defaultCurve));
+		addFilter(new ToneCurveFilter(defaultCurve,defaultCurve,defaultCurve,defaultCurve)); //TODO fix on 4+
 		addFilter(new HueFilter(3.14f/6f));
 		addFilter(new BrightnessFilter(0.5f));
 		addFilter(new ColourMatrixFilter(new float[]{	0.33f,0f,0f,0f,
@@ -191,12 +180,12 @@ public class ImageProcessingActivity extends Activity {
 		
 		screen = new ScreenEndpoint(pipeline);
 		
-		image.addTarget(screen);
+		input.addTarget(screen);
 		for(BasicFilter filter : filters) {
 			filter.addTarget(screen);
 		}
 		
-		pipeline.setRootRenderer(image);
+		pipeline.setRootRenderer(input);
 		pipeline.startRendering();
 		view.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent e) {
@@ -204,15 +193,16 @@ public class ImageProcessingActivity extends Activity {
 					pipeline.pauseRendering();
 					touchTime = System.currentTimeMillis();
 					if(curFilter == 0) {
-						image.removeTarget(screen);
+						input.removeTarget(screen);
 					} else {
-						image.removeTarget(filters.get(curFilter-1));
+						input.removeTarget(filters.get(curFilter-1));
+						pipeline.addFilterToDestroy(filters.get(curFilter-1));
 					}
 					curFilter=(curFilter+1)%(filters.size()+1);
 					if(curFilter == 0) {
-						image.addTarget(screen);
+						input.addTarget(screen);
 					} else {
-						image.addTarget(filters.get(curFilter-1));
+						input.addTarget(filters.get(curFilter-1));
 					}
 					pipeline.startRendering();
 					view.requestRender();

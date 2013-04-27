@@ -1,8 +1,12 @@
 package project.android.imageprocessing.helper;
 
+import java.nio.IntBuffer;
+
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 public class ImageHelper {
 	/**
@@ -20,6 +24,6 @@ public class ImageHelper {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
         GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-		return tex[0];
+        return tex[0];
 	}
 }

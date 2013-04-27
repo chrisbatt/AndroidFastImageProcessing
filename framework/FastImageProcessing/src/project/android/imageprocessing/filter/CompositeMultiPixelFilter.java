@@ -5,12 +5,12 @@ import java.util.List;
 
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
 
-public class CompositeFilter extends MultiInputFilter {
+public class CompositeMultiPixelFilter extends MultiInputPixelFilter {
 	private List<BasicFilter> initialFilters;
 	private List<GLTextureOutputRenderer> terminalFilters;
 	private List<GLTextureOutputRenderer> inputOutputFilters;
 
-	public CompositeFilter(int numOfInputs) {
+	public CompositeMultiPixelFilter(int numOfInputs) {
 		super(numOfInputs);
 		initialFilters = new ArrayList<BasicFilter>();
 		terminalFilters = new ArrayList<GLTextureOutputRenderer>();
@@ -64,4 +64,5 @@ public class CompositeFilter extends MultiInputFilter {
 		}
 		super.setRenderSize(width, height);
 	}
+
 }

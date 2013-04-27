@@ -94,8 +94,9 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 		GLES20.glRenderbufferStorage(GLES20.GL_RENDERBUFFER, GLES20.GL_DEPTH_COMPONENT16, getWidth(), getHeight());
 		GLES20.glFramebufferRenderbuffer(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT, GLES20.GL_RENDERBUFFER, depthRenderBuffer[0]);
 		
-		if (GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER) != GLES20.GL_FRAMEBUFFER_COMPLETE) {
-			throw new RuntimeException(this+": Failed to set up render buffer");
+		int status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER);
+		if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
+			throw new RuntimeException(this+": Failed to set up render buffer with status "+status+" and error "+GLES20.glGetError());
 		}
 	}
 	
@@ -138,5 +139,22 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	 */
 	public Object getLockObject() {
 		return listLock;
+	}
+	
+	@Override
+	public void destroy() {
+		super.destroy();
+		if(frameBuffer != null) {
+			GLES20.glDeleteFramebuffers(1, frameBuffer, 0);
+			frameBuffer = null;
+		}
+		if(texture_out != null) {
+			GLES20.glDeleteTextures(1, texture_out, 0);
+			texture_out = null;
+		}
+		if(depthRenderBuffer != null) {
+			GLES20.glDeleteRenderbuffers(1, depthRenderBuffer, 0);
+			depthRenderBuffer = null;
+		}
 	}
 }

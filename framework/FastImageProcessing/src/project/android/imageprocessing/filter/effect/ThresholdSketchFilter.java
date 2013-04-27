@@ -1,42 +1,17 @@
-package project.android.imageprocessing.filter.processing;
+package project.android.imageprocessing.filter.effect;
 
 import android.opengl.GLES20;
-import project.android.imageprocessing.filter.CompositeMultiPixelFilter;
 import project.android.imageprocessing.filter.GroupFilter;
 import project.android.imageprocessing.filter.MultiPixelRenderer;
 import project.android.imageprocessing.filter.colour.GreyScaleFilter;
+import project.android.imageprocessing.filter.processing.ThresholdEdgeDetectionFilter;
 
-public class ThresholdEdgeDetectionFilter extends CompositeMultiPixelFilter {
-	protected static final String UNIFORM_THRESHOLD = "u_Threshold";
-	
-	private int thresholdHandle;
-	private float threshold;
-	
-	public ThresholdEdgeDetectionFilter(float threshold) {
-		super(1);
+public class ThresholdSketchFilter extends ThresholdEdgeDetectionFilter {
+		
+	public ThresholdSketchFilter(float threshold) {
+		super(threshold);
+	}
 
-		this.threshold = threshold;
-		
-		GreyScaleFilter grey = new GreyScaleFilter();
-		grey.addTarget(this);
-		
-		registerInitialFilter(grey);
-		registerTerminalFilter(grey);	
-		registerFilter(grey);
-	}
-		
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		thresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_THRESHOLD);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(thresholdHandle, threshold);
-	}
-	
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -63,7 +38,7 @@ public class ThresholdEdgeDetectionFilter extends CompositeMultiPixelFilter {
 			    +"   float v = -bottomLeftIntensity - 2.0 * leftIntensity - topLeftIntensity + bottomRightIntensity + 2.0 * rightIntensity + topRightIntensity;\n"
 			     
 			    +"   float mag = length(vec2(h, v));\n"
-			    +"   mag = step("+UNIFORM_THRESHOLD+", mag);\n"
+			    +"   mag = 1.0 - step("+UNIFORM_THRESHOLD+", mag);\n"
 			     
 			    +"   gl_FragColor = vec4(vec3(mag), 1.0);\n"
 		  		+"}\n";

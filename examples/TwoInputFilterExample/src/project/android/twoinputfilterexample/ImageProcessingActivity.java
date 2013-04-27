@@ -9,8 +9,11 @@ import project.android.imageprocessing.filter.MultiInputFilter;
 import project.android.imageprocessing.filter.blend.*;
 import project.android.imageprocessing.filter.colour.GreyScaleFilter;
 import project.android.imageprocessing.filter.processing.GaussianBlurFilter;
+import project.android.imageprocessing.input.CameraPreviewInput;
+import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import project.android.imageprocessing.input.ImageResourceInput;
 import project.android.imageprocessing.output.ScreenEndpoint;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.MotionEvent;
@@ -23,7 +26,7 @@ public class ImageProcessingActivity extends Activity {
 	private FastImageProcessingView view;
 	private List<MultiInputFilter> filters;
 	private int curFilter;
-	private ImageResourceInput image;
+	private GLTextureOutputRenderer input;
 	private long touchTime;
 	private FastImageProcessingPipeline pipeline;
 	private ScreenEndpoint screen;
@@ -46,20 +49,24 @@ public class ImageProcessingActivity extends Activity {
 		pipeline = new FastImageProcessingPipeline();
 		view.setPipeline(pipeline);
 		setContentView(view);
-		image = new ImageResourceInput(view, this, R.drawable.tiger);
+		/*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			input = new CameraPreviewInput(view);
+	    } else {*/
+			input = new ImageResourceInput(view, this, R.drawable.tiger);
+	    //}
 		blur = new GaussianBlurFilter(2f);
 		grey = new GreyScaleFilter();
 		filters = new ArrayList<MultiInputFilter>();
 		
 		screen = new ScreenEndpoint(pipeline);
 		
-		image.addTarget(blur);
-		image.addTarget(grey);
+		input.addTarget(blur);
+		input.addTarget(grey);
 		
 		addFilter(new MaskFilter());
 		addFilter(new LinearBurnBlendFilter());
-		addFilter(new LuminosityBlendFilter());
-		addFilter(new SaturationBlendFilter());
+		addFilter(new LuminosityBlendFilter()); //TODO fix on 4+
+		addFilter(new SaturationBlendFilter()); //TODO fix on 4+
 		addFilter(new HueBlendFilter());
 		addFilter(new ColourBlendFilter());
 		addFilter(new NormalBlendFilter());
@@ -76,7 +83,7 @@ public class ImageProcessingActivity extends Activity {
 		addFilter(new OverlayBlendFilter());
 		addFilter(new DivideBlendFilter());
 		addFilter(new SubtractBlendFilter());
-		addFilter(new AddBlendFilter());
+		addFilter(new AddBlendFilter()); //TODO fix on 4+
 		addFilter(new MultiplyBlendFilter());
 		addFilter(new DissolveBlendFilter(0.7f));
 		addFilter(new ChromaKeyBlendFilter(new float[] {1.0f, 0.3f, 0.0f}, 0.4f, 0.1f));
@@ -85,7 +92,7 @@ public class ImageProcessingActivity extends Activity {
 		blur.addTarget(filters.get(0));
 		grey.addTarget(filters.get(0));
 		
-		pipeline.setRootRenderer(image);
+		pipeline.setRootRenderer(input);
 		pipeline.startRendering();
 		view.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent e) {

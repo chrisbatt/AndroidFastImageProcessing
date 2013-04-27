@@ -15,6 +15,8 @@ public class TiltShiftFilter extends CompositeFilter {
 	private int focusFallOffRateHandle;
 	private int topFocusLevelHandle;
 	private int bottomFocusLevelHandle;
+	
+	private GaussianBlurFilter blur;
 
 	public TiltShiftFilter(float blurSize, float topFocusLevel, float bottomFocusLevel, float focusFallOffRate) {
 		super(2);
@@ -22,17 +24,12 @@ public class TiltShiftFilter extends CompositeFilter {
 		this.bottomFocusLevel = bottomFocusLevel;
 		this.focusFallOffRate = focusFallOffRate;
 		
-		GaussianBlurFilter blur = new GaussianBlurFilter(blurSize);
+		blur = new GaussianBlurFilter(blurSize);
 		blur.addTarget(this);
 
-		super.registerFilter(blur);
+		registerFilter(blur);
 		registerInitialFilter(blur);
 		registerTerminalFilter(blur);
-	}
-	
-	public void registerFilter(GLTextureOutputRenderer filter) {
-		registerFilter(filter, 0);
-		registerInputOutputFilter(filter);
 	}
 	
 	@Override
@@ -50,6 +47,17 @@ public class TiltShiftFilter extends CompositeFilter {
 		GLES20.glUniform1f(topFocusLevelHandle, topFocusLevel);
 		GLES20.glUniform1f(bottomFocusLevelHandle, bottomFocusLevel);
 	} 
+	
+	@Override
+	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
+		if(filterLocations.size() < 2 || !filterLocations.get(0).equals(source)) {
+			clearRegisteredFilters();
+			registerFilter(source, 0);
+			registerFilter(blur, 1);
+			registerInputOutputFilter(source);
+		}
+		super.newTextureReady(texture, source);
+	}
 	
 	@Override
 	protected String getFragmentShader() {
