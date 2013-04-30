@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.colour;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.BasicFilter;
+import android.opengl.GLES20;
 
 public class OpacityFilter extends BasicFilter {
 	private static final String UNIFORM_OPACITY = "u_Opacity";

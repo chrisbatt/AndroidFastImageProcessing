@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.effect;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.BasicFilter;
+import android.opengl.GLES20;
 
 public class PosterizeFilter extends BasicFilter {
 	private static final String UNIFORM_QUANTIZATION = "u_Quantization";

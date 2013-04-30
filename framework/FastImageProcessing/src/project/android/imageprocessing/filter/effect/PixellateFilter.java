@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.effect;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.BasicFilter;
+import android.opengl.GLES20;
 
 public class PixellateFilter extends BasicFilter {
 	protected static final String UNIFORM_FRACTIONAL_WIDTH = "u_FractionalWidth";

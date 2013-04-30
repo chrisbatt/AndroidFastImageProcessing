@@ -9,24 +9,34 @@ public class CompositeFilter extends MultiInputFilter {
 	private List<BasicFilter> initialFilters;
 	private List<GLTextureOutputRenderer> terminalFilters;
 	private List<GLTextureOutputRenderer> inputOutputFilters;
+	private List<GLTextureOutputRenderer> filters;
 
 	public CompositeFilter(int numOfInputs) {
 		super(numOfInputs);
 		initialFilters = new ArrayList<BasicFilter>();
 		terminalFilters = new ArrayList<GLTextureOutputRenderer>();
 		inputOutputFilters = new ArrayList<GLTextureOutputRenderer>();
+		filters = new ArrayList<GLTextureOutputRenderer>();
 	}
 	
 	protected void registerInitialFilter(BasicFilter filter) {
 		initialFilters.add(filter);
+		registerFilter(filter);
 	}
 	
 	protected void registerTerminalFilter(GLTextureOutputRenderer filter) {
 		terminalFilters.add(filter);
+		registerFilter(filter);
 	}
 	
 	protected void registerInputOutputFilter(GLTextureOutputRenderer filter) {
 		inputOutputFilters.add(filter);
+	}
+	
+	protected void registerFilter(GLTextureOutputRenderer filter) {
+		if(!filters.contains(filter)) {
+			filters.add(filter);
+		}
 	}
 
 	/*
@@ -59,9 +69,19 @@ public class CompositeFilter extends MultiInputFilter {
 	
 	@Override
 	public void setRenderSize(int width, int height) {
-		for(BasicFilter initialFilter : initialFilters) {
-			initialFilter.setRenderSize(width, height);
+		for(GLTextureOutputRenderer filter : filters) {
+			filter.setRenderSize(width, height);
 		}
 		super.setRenderSize(width, height);
 	}
+	
+	@Override
+	public void destroy() {
+		super.destroy();
+		for(GLTextureOutputRenderer filter : filters) {
+			filter.destroy();
+		}
+	}
+	
+	
 }

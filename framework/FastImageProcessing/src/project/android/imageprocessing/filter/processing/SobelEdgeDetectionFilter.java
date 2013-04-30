@@ -9,9 +9,9 @@ public class SobelEdgeDetectionFilter extends CompositeMultiPixelFilter {
 		GreyScaleFilter grey = new GreyScaleFilter();
 		grey.addTarget(this);
 		
+		registerFilterLocation(grey);
 		registerInitialFilter(grey);
 		registerTerminalFilter(grey);	
-		registerFilter(grey);
 	}
 	
 	@Override

@@ -1,8 +1,8 @@
 package project.android.imageprocessing.filter.effect;
 
+import project.android.imageprocessing.filter.BasicFilter;
 import android.graphics.PointF;
 import android.opengl.GLES20;
-import project.android.imageprocessing.filter.BasicFilter;
 
 public class SwirlFilter extends BasicFilter {
 	protected static final String UNIFORM_CENTER = "u_Center";

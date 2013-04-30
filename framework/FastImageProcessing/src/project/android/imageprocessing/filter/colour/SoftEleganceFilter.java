@@ -1,10 +1,10 @@
 package project.android.imageprocessing.filter.colour;
 
-import android.content.Context;
 import project.android.fastimageprocessing.R;
 import project.android.imageprocessing.filter.GroupFilter;
 import project.android.imageprocessing.filter.blend.AlphaBlendFilter;
 import project.android.imageprocessing.filter.processing.GaussianBlurFilter;
+import android.content.Context;
 
 public class SoftEleganceFilter extends GroupFilter {
 
@@ -16,12 +16,14 @@ public class SoftEleganceFilter extends GroupFilter {
 		img1.addTarget(gaussianBlur);
 		img1.addTarget(alphaBlend);
 		gaussianBlur.addTarget(alphaBlend);
-		alphaBlend.registerFilter(img1);
-		alphaBlend.registerFilter(gaussianBlur);
+		alphaBlend.registerFilterLocation(img1);
+		alphaBlend.registerFilterLocation(gaussianBlur);
 		alphaBlend.addTarget(img2);
 		img2.addTarget(this);
 		
 		registerInitialFilter(img1);
+		registerFilter(gaussianBlur);
+		registerFilter(alphaBlend);
 		registerTerminalFilter(img2);
 	}
 }

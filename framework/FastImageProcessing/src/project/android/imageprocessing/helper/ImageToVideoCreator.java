@@ -1,5 +1,7 @@
 package project.android.imageprocessing.helper;
 
+import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
+
 import java.nio.IntBuffer;
 
 import android.opengl.GLES20;
@@ -8,7 +10,6 @@ import com.googlecode.javacv.FFmpegFrameRecorder;
 import com.googlecode.javacv.FrameRecorder;
 import com.googlecode.javacv.FrameRecorder.Exception;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
-import static com.googlecode.javacv.cpp.opencv_core.IPL_DEPTH_8U;
 
 /**
  * A helper class for video creation.

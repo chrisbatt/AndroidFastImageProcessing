@@ -5,8 +5,6 @@ import java.util.List;
 
 import project.android.imageprocessing.GLRenderer;
 import project.android.imageprocessing.output.GLTextureInputRenderer;
-
-
 import android.opengl.GLES20;
 
 /**
@@ -21,7 +19,7 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	protected int[] depthRenderBuffer;
 	
 	private List<GLTextureInputRenderer> targets;
-	protected Object listLock = new Object();
+	private Object listLock = new Object();
 	
 	/**
 	 * Creates a GLTextureOutputRenderer which initially has an empty list of targets.
@@ -59,7 +57,7 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 		}
 	}
 	
-	protected void initFBO() {
+	private void initFBO() {
 		if(frameBuffer != null) {
 			GLES20.glDeleteFramebuffers(1, frameBuffer, 0);
 			frameBuffer = null;

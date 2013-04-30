@@ -3,12 +3,12 @@ package project.android.imageprocessing.output;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import com.googlecode.javacv.FrameRecorder.Exception;
-
-import android.util.Log;
 import project.android.imageprocessing.GLRenderer;
 import project.android.imageprocessing.helper.ImageToVideoCreator;
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
+import android.util.Log;
+
+import com.googlecode.javacv.FrameRecorder.Exception;
 
 /**
  * A mp4 video renderer extension of GLRenderer. 

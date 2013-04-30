@@ -6,46 +6,24 @@ import java.util.List;
 import project.android.imageprocessing.FastImageProcessingPipeline;
 import project.android.imageprocessing.FastImageProcessingView;
 import project.android.imageprocessing.filter.BasicFilter;
-import project.android.imageprocessing.filter.colour.ColourInvertFilter;
-import project.android.imageprocessing.filter.colour.ColourMatrixFilter;
-import project.android.imageprocessing.filter.colour.GreyScaleFilter;
-import project.android.imageprocessing.filter.colour.HueFilter;
-import project.android.imageprocessing.filter.colour.BrightnessFilter;
-import project.android.imageprocessing.filter.colour.MissEtikateFilter;
-import project.android.imageprocessing.filter.colour.MonochromeFilter;
-import project.android.imageprocessing.filter.colour.SoftEleganceFilter;
-import project.android.imageprocessing.filter.colour.ToneCurveFilter;
-import project.android.imageprocessing.filter.colour.HighlightShadowFilter;
-import project.android.imageprocessing.filter.colour.ContrastFilter;
-import project.android.imageprocessing.filter.colour.LookupFilter;
-import project.android.imageprocessing.filter.colour.AmatorkaFilter;
-import project.android.imageprocessing.filter.colour.ExposureFilter;
-import project.android.imageprocessing.filter.colour.GammaFilter;
-import project.android.imageprocessing.filter.colour.LevelsFilter;
-import project.android.imageprocessing.filter.colour.SaturationFilter;
-import project.android.imageprocessing.filter.colour.FalseColourFilter;
-import project.android.imageprocessing.filter.colour.RGBFilter;
-import project.android.imageprocessing.filter.colour.HazeFilter;
-import project.android.imageprocessing.filter.colour.SepiaFilter;
-import project.android.imageprocessing.filter.colour.OpacityFilter;
-import project.android.imageprocessing.filter.colour.LuminanceThresholdFilter;
-import project.android.imageprocessing.filter.colour.AdaptiveThresholdFilter;
-import project.android.imageprocessing.filter.colour.ChromaKeyFilter;
-import project.android.imageprocessing.filter.processing.*;
+import project.android.imageprocessing.filter.colour.*;
 import project.android.imageprocessing.filter.effect.*;
+import project.android.imageprocessing.filter.processing.*;
 import project.android.imageprocessing.input.CameraPreviewInput;
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import project.android.imageprocessing.input.ImageResourceInput;
 import project.android.imageprocessing.output.ScreenEndpoint;
-import android.os.Build;
-import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.os.Build;
+import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 public class ImageProcessingActivity extends Activity {
 
@@ -56,6 +34,7 @@ public class ImageProcessingActivity extends Activity {
 	private long touchTime;
 	private FastImageProcessingPipeline pipeline;
 	private ScreenEndpoint screen;
+	private boolean usingCamera;
 	
 	private void addFilter(BasicFilter filter) {
 		filters.add(filter);		
@@ -70,18 +49,19 @@ public class ImageProcessingActivity extends Activity {
 		pipeline = new FastImageProcessingPipeline();
 		view.setPipeline(pipeline);
 		setContentView(view);
-		/*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+		usingCamera = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH);
+		if (usingCamera) {
 			input = new CameraPreviewInput(view);
-	    } else {*/
-			input = new ImageResourceInput(view, this, R.drawable.tiger);
-	    //}
+	    } else {
+			input = new ImageResourceInput(view, this, R.drawable.kukulkan);
+	    }
 		filters = new ArrayList<BasicFilter>();
 		
 		addFilter(new FlipFilter(FlipFilter.FLIP_HORIZONTAL));
 		addFilter(new MosaicFilter(this, R.drawable.webcircles, new PointF(0.125f, 0.125f), new PointF(0.025f, 0.025f), 64, true));
 		addFilter(new CGAColourSpaceFilter());
 		addFilter(new KuwaharaRadius3Filter());
-		addFilter(new KuwaharaFilter(4));
+		//addFilter(new KuwaharaFilter(8)); //Will not work on devices that don't support for loop on shader
 		addFilter(new VignetteFilter(new PointF(0.5f, 0.5f), new float[] {0.3f, 0.8f, 0.3f}, 0.3f, 0.75f)); 
 		addFilter(new GlassSphereFilter(new PointF(0.43f, 0.5f), 0.25f, 0.71f, 0.5f));
 		addFilter(new SphereRefractionFilter(new PointF(0.43f, 0.5f), 0.25f, 0.71f, 0.5f));
@@ -157,7 +137,7 @@ public class ImageProcessingActivity extends Activity {
 		addFilter(new LookupFilter(this, R.drawable.lookup_soft_elegance_1));
 		addFilter(new HighlightShadowFilter(0f, 1f));
 		Point[] defaultCurve = new Point[] {new Point(128,128), new Point(64,0), new Point(192,255)};
-		addFilter(new ToneCurveFilter(defaultCurve,defaultCurve,defaultCurve,defaultCurve)); //TODO fix on 4+
+		addFilter(new ToneCurveFilter(defaultCurve,defaultCurve,defaultCurve,defaultCurve));
 		addFilter(new HueFilter(3.14f/6f));
 		addFilter(new BrightnessFilter(0.5f));
 		addFilter(new ColourMatrixFilter(new float[]{	0.33f,0f,0f,0f,
@@ -185,8 +165,9 @@ public class ImageProcessingActivity extends Activity {
 			filter.addTarget(screen);
 		}
 		
-		pipeline.setRootRenderer(input);
+		pipeline.addRootRenderer(input);
 		pipeline.startRendering();
+		final Context context = this;
 		view.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent e) {
 				if(System.currentTimeMillis() - touchTime > 100) {
@@ -203,6 +184,7 @@ public class ImageProcessingActivity extends Activity {
 						input.addTarget(screen);
 					} else {
 						input.addTarget(filters.get(curFilter-1));
+						Toast.makeText(context, filters.get(curFilter-1).getClass().getSimpleName(), Toast.LENGTH_SHORT).show();
 					}
 					pipeline.startRendering();
 					view.requestRender();
@@ -210,6 +192,23 @@ public class ImageProcessingActivity extends Activity {
 				return false;
 			}
 		});
+		Toast.makeText(this, "Tap the screen to change filter.", Toast.LENGTH_LONG).show();
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		if (usingCamera) {
+			((CameraPreviewInput) input).onPause();
+		}
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (usingCamera) {
+			((CameraPreviewInput) input).onResume();
+		}
 	}
 
 }

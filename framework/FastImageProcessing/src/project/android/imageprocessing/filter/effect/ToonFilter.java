@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.effect;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.MultiPixelRenderer;
+import android.opengl.GLES20;
 
 public class ToonFilter extends MultiPixelRenderer {
 	private static final String UNIFORM_THRESHOLD = "u_Threshold";

@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.processing;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.BasicFilter;
+import android.opengl.GLES20;
 
 public class TransformFilter extends BasicFilter {
 	private static final String UNIFORM_TRANSFORM_MATRIX = "u_TransformMatrix";

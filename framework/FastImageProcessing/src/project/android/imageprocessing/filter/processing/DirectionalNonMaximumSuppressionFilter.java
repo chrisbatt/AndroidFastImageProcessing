@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.processing;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.MultiPixelRenderer;
+import android.opengl.GLES20;
 
 public class DirectionalNonMaximumSuppressionFilter extends MultiPixelRenderer {
 	private static final String UNIFORM_UPPER_THRESHOLD = "u_UpperThreshold";

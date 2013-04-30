@@ -13,8 +13,8 @@ public class AdaptiveThresholdFilter extends CompositeFilter {
 		blur.addTarget(this);
 		luminance.addTarget(this);
 		
-		registerFilter(luminance, 0);
-		registerFilter(blur, 1);
+		registerFilterLocation(luminance, 0);
+		registerFilterLocation(blur, 1);
 		
 		registerInitialFilter(luminance);
 		registerTerminalFilter(luminance);

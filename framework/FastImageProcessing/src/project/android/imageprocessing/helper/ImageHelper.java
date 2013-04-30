@@ -1,12 +1,8 @@
 package project.android.imageprocessing.helper;
 
-import java.nio.IntBuffer;
-
 import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.util.Log;
 
 public class ImageHelper {
 	/**

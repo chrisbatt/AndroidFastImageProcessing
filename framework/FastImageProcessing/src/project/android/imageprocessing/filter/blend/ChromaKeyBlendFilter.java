@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.blend;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.MultiInputFilter;
+import android.opengl.GLES20;
 
 public class ChromaKeyBlendFilter extends MultiInputFilter {
 	private static final String UNIFORM_COLOUR = "u_Colour";

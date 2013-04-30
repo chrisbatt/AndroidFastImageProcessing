@@ -17,6 +17,9 @@ public class CannyEdgeDetectionFilter extends GroupFilter {
 		weakPixel.addTarget(this);
 		
 		registerInitialFilter(grey);
+		registerFilter(blur);
+		registerFilter(sobel);
+		registerFilter(suppression);
 		registerTerminalFilter(weakPixel);
 	}
 }

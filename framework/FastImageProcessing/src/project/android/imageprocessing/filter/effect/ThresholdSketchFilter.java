@@ -1,9 +1,5 @@
 package project.android.imageprocessing.filter.effect;
 
-import android.opengl.GLES20;
-import project.android.imageprocessing.filter.GroupFilter;
-import project.android.imageprocessing.filter.MultiPixelRenderer;
-import project.android.imageprocessing.filter.colour.GreyScaleFilter;
 import project.android.imageprocessing.filter.processing.ThresholdEdgeDetectionFilter;
 
 public class ThresholdSketchFilter extends ThresholdEdgeDetectionFilter {

@@ -1,8 +1,8 @@
 package project.android.imageprocessing.filter.processing;
 
+import project.android.imageprocessing.filter.BasicFilter;
 import android.graphics.PointF;
 import android.opengl.GLES20;
-import project.android.imageprocessing.filter.BasicFilter;
 
 public class ZoomBlurFilter extends BasicFilter {
 	private static final String UNIFORM_BLUR_SIZE = "u_BlurSize";

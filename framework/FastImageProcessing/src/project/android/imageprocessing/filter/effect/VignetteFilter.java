@@ -1,8 +1,8 @@
 package project.android.imageprocessing.filter.effect;
 
+import project.android.imageprocessing.filter.BasicFilter;
 import android.graphics.PointF;
 import android.opengl.GLES20;
-import project.android.imageprocessing.filter.BasicFilter;
 
 public class VignetteFilter extends BasicFilter {
 	protected static final String UNIFORM_CENTER = "u_Center";
@@ -57,7 +57,7 @@ public class VignetteFilter extends BasicFilter {
 				
 		  		+"void main(){\n"
 		  		+"	lowp vec4 color = texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+");\n"
-		  		+" 	lowp float d = distance("+VARYING_TEXCOORD+", "+UNIFORM_CENTER+");\n"
+		  		+" 	mediump float d = distance("+VARYING_TEXCOORD+", "+UNIFORM_CENTER+");\n"
 			    +" 	lowp float percent = smoothstep("+UNIFORM_START+", "+UNIFORM_END+", d);\n"
 			    +" 	gl_FragColor = vec4(mix(color.rgb, "+UNIFORM_COLOUR+", percent), color.a);\n"
 		  		+"}\n";

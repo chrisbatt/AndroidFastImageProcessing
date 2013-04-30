@@ -35,6 +35,7 @@ public class MultiInputPixelFilter extends MultiInputFilter {
 	
 	@Override
 	protected void handleSizeChange() {
+		super.handleSizeChange();
 		texelWidth = 1.0f / (float)getWidth();
 		texelHeight = 1.0f / (float)getHeight();
 	}

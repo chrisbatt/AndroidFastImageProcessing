@@ -74,7 +74,7 @@ public abstract class MultiInputFilter extends BasicFilter {
 	/**
 	 * Removes all currently registered filters from filter location list.  
 	 */
-	public void clearRegisteredFilters() {
+	public void clearRegisteredFilterLocations() {
 		filterLocations.clear();
 	}
 	
@@ -85,7 +85,10 @@ public abstract class MultiInputFilter extends BasicFilter {
 	 * @param location
 	 * The texture location that this filter should pass its output to. This location must be in [0,numOfInputs).
 	 */
-	public void registerFilter(GLTextureOutputRenderer filter, int location) {
+	public void registerFilterLocation(GLTextureOutputRenderer filter, int location) {
+		if(filterLocations.contains(filter)) {
+			filterLocations.remove(filter);
+		}
 		filterLocations.add(location, filter);
 	}
 	
@@ -94,8 +97,10 @@ public abstract class MultiInputFilter extends BasicFilter {
 	 * @param filter
 	 * An output filter which passes its output to this filter.
 	 */
-	public void registerFilter(GLTextureOutputRenderer filter) {
-		filterLocations.add(filter);
+	public void registerFilterLocation(GLTextureOutputRenderer filter) {
+		if(!filterLocations.contains(filter)) {
+			filterLocations.add(filter);
+		}
 	}
 	
 	/* (non-Javadoc)

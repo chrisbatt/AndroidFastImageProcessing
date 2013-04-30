@@ -1,8 +1,8 @@
 package project.android.imageprocessing.filter.processing;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.CompositeFilter;
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
+import android.opengl.GLES20;
 
 public class TiltShiftFilter extends CompositeFilter {
 	protected static final String UNIFORM_FOCUS_FALLOFF = "u_FocusFalloff";
@@ -27,7 +27,6 @@ public class TiltShiftFilter extends CompositeFilter {
 		blur = new GaussianBlurFilter(blurSize);
 		blur.addTarget(this);
 
-		registerFilter(blur);
 		registerInitialFilter(blur);
 		registerTerminalFilter(blur);
 	}
@@ -50,10 +49,10 @@ public class TiltShiftFilter extends CompositeFilter {
 	
 	@Override
 	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
-		if(filterLocations.size() < 2 || !filterLocations.get(0).equals(source)) {
-			clearRegisteredFilters();
-			registerFilter(source, 0);
-			registerFilter(blur, 1);
+		if(filterLocations.size() < 2 || !filterLocations.contains(source)) {
+			clearRegisteredFilterLocations();
+			registerFilterLocation(source, 0);
+			registerFilterLocation(blur, 1);
 			registerInputOutputFilter(source);
 		}
 		super.newTextureReady(texture, source);

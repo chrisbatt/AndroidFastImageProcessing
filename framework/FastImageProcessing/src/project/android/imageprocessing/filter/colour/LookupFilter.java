@@ -1,13 +1,12 @@
 package project.android.imageprocessing.filter.colour;
 
+import project.android.imageprocessing.filter.MultiInputFilter;
+import project.android.imageprocessing.helper.ImageHelper;
+import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
-import project.android.imageprocessing.filter.MultiInputFilter;
-import project.android.imageprocessing.filter.processing.FlipFilter;
-import project.android.imageprocessing.helper.ImageHelper;
-import project.android.imageprocessing.input.GLTextureOutputRenderer;
 
 public class LookupFilter extends MultiInputFilter {
 	private int lookup_texture;
@@ -23,9 +22,9 @@ public class LookupFilter extends MultiInputFilter {
 	@Override
 	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
 		if(filterLocations.size() < 2 || !source.equals(filterLocations.get(0))) {
-			clearRegisteredFilters();
-			registerFilter(source, 0);
-			registerFilter(this, 1);
+			clearRegisteredFilterLocations();
+			registerFilterLocation(source, 0);
+			registerFilterLocation(this, 1);
 		}
 		if(lookup_texture == 0) {
 			lookup_texture = ImageHelper.bitmapToTexture(lookupBitmap);

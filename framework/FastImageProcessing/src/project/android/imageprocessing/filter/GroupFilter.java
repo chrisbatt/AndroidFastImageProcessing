@@ -18,6 +18,7 @@ import project.android.imageprocessing.output.GLTextureInputRenderer;
 public abstract class GroupFilter extends BasicFilter {
 	
 	private List<BasicFilter> initialFilters;
+	private List<BasicFilter> filters;
 	private List<BasicFilter> terminalFilters;
 	
 	/**
@@ -27,14 +28,23 @@ public abstract class GroupFilter extends BasicFilter {
 	public GroupFilter() {
 		initialFilters = new ArrayList<BasicFilter>();
 		terminalFilters = new ArrayList<BasicFilter>();
+		filters = new ArrayList<BasicFilter>();
 	}
 	
 	protected void registerInitialFilter(BasicFilter filter) {
 		initialFilters.add(filter);
+		registerFilter(filter);
 	}
 	
 	protected void registerTerminalFilter(BasicFilter filter) {
 		terminalFilters.add(filter);
+		registerFilter(filter);
+	}
+	
+	protected void registerFilter(BasicFilter filter) {
+		if(!filters.contains(filter)) {
+			filters.add(filter);
+		}
 	}
 
 	/*
@@ -66,8 +76,16 @@ public abstract class GroupFilter extends BasicFilter {
 	
 	@Override
 	public void setRenderSize(int width, int height) {
-		for(BasicFilter initialFilter : initialFilters) {
-			initialFilter.setRenderSize(width, height);
+		for(BasicFilter filter : filters) {
+			filter.setRenderSize(width, height);
+		}
+	}
+	
+	@Override
+	public void destroy() {
+		super.destroy();
+		for(BasicFilter filter : filters) {
+			filter.destroy();
 		}
 	}
 }

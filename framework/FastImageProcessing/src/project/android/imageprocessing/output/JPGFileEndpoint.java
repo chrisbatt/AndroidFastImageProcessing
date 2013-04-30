@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.IntBuffer;
 
-import android.graphics.Bitmap;
-import android.opengl.GLES20;
 import project.android.imageprocessing.GLRenderer;
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
+import android.graphics.Bitmap;
+import android.opengl.GLES20;
 
 /**
  * A JPG image renderer extension of GLRenderer. 

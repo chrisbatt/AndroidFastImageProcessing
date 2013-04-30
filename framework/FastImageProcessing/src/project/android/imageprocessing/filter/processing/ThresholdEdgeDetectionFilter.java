@@ -1,10 +1,8 @@
 package project.android.imageprocessing.filter.processing;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.CompositeMultiPixelFilter;
-import project.android.imageprocessing.filter.GroupFilter;
-import project.android.imageprocessing.filter.MultiPixelRenderer;
 import project.android.imageprocessing.filter.colour.GreyScaleFilter;
+import android.opengl.GLES20;
 
 public class ThresholdEdgeDetectionFilter extends CompositeMultiPixelFilter {
 	protected static final String UNIFORM_THRESHOLD = "u_Threshold";
@@ -22,7 +20,7 @@ public class ThresholdEdgeDetectionFilter extends CompositeMultiPixelFilter {
 		
 		registerInitialFilter(grey);
 		registerTerminalFilter(grey);	
-		registerFilter(grey);
+		registerFilterLocation(grey);
 	}
 		
 	@Override

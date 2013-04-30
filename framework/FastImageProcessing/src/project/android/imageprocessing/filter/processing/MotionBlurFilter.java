@@ -1,6 +1,5 @@
 package project.android.imageprocessing.filter.processing;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.MultiPixelRenderer;
 
 public class MotionBlurFilter extends MultiPixelRenderer {

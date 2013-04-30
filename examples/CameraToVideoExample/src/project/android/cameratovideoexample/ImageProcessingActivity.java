@@ -5,12 +5,9 @@ import project.android.imageprocessing.FastImageProcessingView;
 import project.android.imageprocessing.filter.BasicFilter;
 import project.android.imageprocessing.filter.processing.ConvolutionFilter;
 import project.android.imageprocessing.input.CameraPreviewInput;
-import project.android.imageprocessing.output.Mp4VideoFileEndpoint;
+import project.android.imageprocessing.output.ScreenEndpoint;
 import android.os.Bundle;
-import android.os.Environment;
 import android.app.Activity;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -18,10 +15,11 @@ public class ImageProcessingActivity extends Activity {
 
 	private FastImageProcessingView view;
 	private BasicFilter sharpen;
-	private long touchTime;
+	//private long touchTime;
 	private FastImageProcessingPipeline pipeline;
 	private CameraPreviewInput camera;
-	private Mp4VideoFileEndpoint video;
+	//private Mp4VideoFileEndpoint video;
+	private ScreenEndpoint screen;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,14 +34,15 @@ public class ImageProcessingActivity extends Activity {
 				-1, 5, -1,
 				0, -1, 0
 			}, 3, 3);
-		video = new Mp4VideoFileEndpoint(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Movies/cameraOuput", 15);
+		screen = new ScreenEndpoint(pipeline);
+		//video = new Mp4VideoFileEndpoint(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Movies/cameraOuput", 15);
 		camera.addTarget(sharpen);
-		sharpen.addTarget(video);
-		pipeline.setRootRenderer(camera);
+		sharpen.addTarget(screen);
+		pipeline.addRootRenderer(camera);
 		view.setPipeline(pipeline);
 		setContentView(view);
 		pipeline.startRendering();
-		view.setOnTouchListener(new View.OnTouchListener() {
+		/*view.setOnTouchListener(new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent e) {
 				if(System.currentTimeMillis() - touchTime > 100) {
 					touchTime = System.currentTimeMillis();
@@ -55,17 +54,19 @@ public class ImageProcessingActivity extends Activity {
 				}
 				return false;
 			}
-		});
+		});*/
 	}
 	
 	@Override
 	public void onPause() {
 		super.onPause();
+		camera.onPause();
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
+		camera.onResume();
 	}
 
 }

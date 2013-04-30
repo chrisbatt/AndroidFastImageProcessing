@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.effect;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.BasicFilter;
+import android.opengl.GLES20;
 
 public class CrosshatchFilter extends BasicFilter {
 	protected static final String UNIFORM_CROSS_HATCH_SPACING = "u_CrossHatchSpacing";

@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.colour;
 
-import android.content.Context;
 import project.android.fastimageprocessing.R;
+import android.content.Context;
 
 
 public class MissEtikateFilter extends LookupFilter {

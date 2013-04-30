@@ -1,29 +1,25 @@
 package project.android.imageprocessing.filter.colour;
 
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import project.android.imageprocessing.filter.MultiInputFilter;
+import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import android.graphics.Point;
 import android.opengl.GLES20;
 
-import project.android.imageprocessing.filter.BasicFilter;
-
-public class ToneCurveFilter extends BasicFilter {
-	private static final String UNIFORM_RED_CURVE = "u_RedCurve";
-	private static final String UNIFORM_GREEN_CURVE = "u_GreenCurve";
-	private static final String UNIFORM_BLUE_CURVE = "u_BlueCurve";
-	
-	private int redCurveHandle;
-	private int greenCurveHandle;
-	private int blueCurveHandle;
+public class ToneCurveFilter extends MultiInputFilter {
 	private int[] redPart;
 	private int[] greenPart;
 	private int[] bluePart;
+	private int[] splineTexture;
 	
 	
 	public ToneCurveFilter(Point[] red, Point[] green, Point[] blue, Point[] rgbComposite) {
+		super(2);
 		float[] redCurve = getPreparedSpline(red);
 		float[] blueCurve = getPreparedSpline(blue);
 		float[] greenCurve = getPreparedSpline(green);
@@ -182,19 +178,41 @@ public class ToneCurveFilter extends BasicFilter {
 	}
 	
 	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		redCurveHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_RED_CURVE);
-		greenCurveHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_GREEN_CURVE); 
-		blueCurveHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BLUE_CURVE);
+	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
+		if(filterLocations.size() < 2 || !source.equals(filterLocations.get(0))) {
+			clearRegisteredFilterLocations();
+			registerFilterLocation(source, 0);
+			registerFilterLocation(this, 1);
+		}
+		if(splineTexture == null || splineTexture[0] == 0) {
+			createSplineTexture();
+		}
+		super.newTextureReady(splineTexture[0], this);
+		super.newTextureReady(texture, source);
 	}
 	
+	
 	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1iv(redCurveHandle, 256, redPart, 0);
-		GLES20.glUniform1iv(greenCurveHandle, 256, greenPart, 0);
-		GLES20.glUniform1iv(blueCurveHandle, 256, bluePart, 0);
+	public void destroy() {
+		super.destroy();
+		if(splineTexture != null && splineTexture[0] != 0) {
+			GLES20.glDeleteTextures(1, splineTexture, 0);
+			splineTexture = null;
+		}
+	}
+	
+	private void createSplineTexture() {		
+		int[] data = new int[256];
+		for(int i = 0; i < 256; i++) {
+			data[i] = (redPart[i] & 0x000000FF) | ((greenPart[i] << 8) & 0x0000FF00) | ((bluePart[i] << 16) & 0x00FF0000) | 0xFF000000;
+		}
+		
+		splineTexture = new int[1];
+		GLES20.glGenTextures(1, splineTexture, 0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, splineTexture[0]);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, 256, 1, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, IntBuffer.wrap(data));
 	}
 
 	@Override
@@ -202,25 +220,30 @@ public class ToneCurveFilter extends BasicFilter {
 		return 
 				 "precision mediump float;\n" 
 				+"uniform sampler2D "+UNIFORM_TEXTURE0+";\n" 
-				+"uniform int "+UNIFORM_RED_CURVE+"[256];\n"
-				+"uniform int "+UNIFORM_GREEN_CURVE+"[256];\n"
-				+"uniform int "+UNIFORM_BLUE_CURVE+"[256];\n"
+				+"uniform sampler2D "+UNIFORM_TEXTUREBASE+1+";\n" 
 				+"varying vec2 "+VARYING_TEXCOORD+";\n"	
+				+"const float halfPixelWidth = 1.0/512.0;"
 				
 		  		+ "void main(){\n"
 		  		+ "   vec4 texColour = texture2D("+UNIFORM_TEXTURE0+","+VARYING_TEXCOORD+");\n"
-		  		+ "   float r = texColour.r;\n"
-		  		+ "   float r2 = r * 255.0;\n"
-		  		+ "   int rInt = int(r2);\n"
-		  		+ "   float rVal = float("+UNIFORM_RED_CURVE+"[rInt]) / 255.0;\n"
-		  		+ "   float g = texColour.g;\n"
-		  		+ "   float g2 = g * 255.0;\n"
-		  		+ "   int gInt = int(g2);\n"
-		  		+ "   float gVal = float("+UNIFORM_GREEN_CURVE+"[gInt]) / 255.0;\n"
-		  		+ "   float b = texColour.b;\n"
-		  		+ "   float b2 = b * 255.0;\n"
-		  		+ "   int bInt = int(b2);\n"
-		  		+ "   float bVal = float("+UNIFORM_BLUE_CURVE+"[bInt]) / 255.0;\n"
+		  		+ "   float rVal;\n"
+		  		+ "   if(texColour.r < halfPixelWidth) {"
+		  		+ "     rVal = texture2D("+UNIFORM_TEXTUREBASE+1+", vec2(texColour.r + halfPixelWidth, 0.5)).r;\n"
+		  		+ "   } else {\n"
+		  		+ "     rVal = texture2D("+UNIFORM_TEXTUREBASE+1+", vec2(texColour.r - halfPixelWidth, 0.5)).r;\n"
+		  		+ "   }\n"
+		  		+ "   float gVal;\n"
+		  		+ "   if(texColour.g < halfPixelWidth) {"
+		  		+ "     gVal = texture2D("+UNIFORM_TEXTUREBASE+1+", vec2(texColour.g + halfPixelWidth, 0.5)).r;\n"
+		  		+ "   } else {\n"
+		  		+ "     gVal = texture2D("+UNIFORM_TEXTUREBASE+1+", vec2(texColour.g - halfPixelWidth, 0.5)).r;\n"
+		  		+ "   }\n"
+		  		+ "   float bVal;\n"
+		  		+ "   if(texColour.b < halfPixelWidth) {"
+		  		+ "     bVal = texture2D("+UNIFORM_TEXTUREBASE+1+", vec2(texColour.b + halfPixelWidth, 0.5)).r;\n"
+		  		+ "   } else {\n"
+		  		+ "     bVal = texture2D("+UNIFORM_TEXTUREBASE+1+", vec2(texColour.b - halfPixelWidth, 0.5)).r;\n"
+		  		+ "   }\n"
 		  		+ "   gl_FragColor = vec4(rVal,gVal,bVal,texColour.a);\n"
 		  		+ "}\n";		
 	}

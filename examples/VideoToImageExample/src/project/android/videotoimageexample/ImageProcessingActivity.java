@@ -38,7 +38,7 @@ public class ImageProcessingActivity extends Activity {
 		image = new JPGFileEndpoint(Environment.getExternalStorageDirectory().getAbsolutePath()+"/Pictures/outputImage", false);
 		video.addTarget(emboss);
 		emboss.addTarget(image);
-		pipeline.setRootRenderer(video);
+		pipeline.addRootRenderer(video);
 		view.setPipeline(pipeline);
 		setContentView(view);
 		pipeline.startRendering();

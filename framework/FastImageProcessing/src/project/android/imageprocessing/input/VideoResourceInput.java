@@ -157,8 +157,15 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 
 	@Override
 	protected String getFragmentShader() {
-		return "#extension GL_OES_EGL_image_external : require\n"+
-		        super.getFragmentShader();
+		return 
+					 "#extension GL_OES_EGL_image_external : require\n"
+					+"precision mediump float;\n"                         
+					+"uniform samplerExternalOES "+UNIFORM_TEXTURE0+";\n"  
+					+"varying vec2 "+VARYING_TEXCOORD+";\n"
+				
+		 			+ "void main() {\n"
+		 			+ "   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+");\n"
+		 			+ "}\n";
 	}
 	
 	/* (non-Javadoc)

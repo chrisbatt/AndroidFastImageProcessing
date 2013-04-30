@@ -18,7 +18,7 @@ import android.opengl.GLSurfaceView.Renderer;
  */
 public class FastImageProcessingPipeline implements Renderer {
 	private boolean rendering;
-	private GLRenderer rootRenderer;
+	private List<GLRenderer> rootRenderers;
 	private int width;
 	private int height;
 	
@@ -30,15 +30,16 @@ public class FastImageProcessingPipeline implements Renderer {
 	public FastImageProcessingPipeline() {
 		rendering = false;
 		filtersToDestroy = new ArrayList<GLRenderer>();
+		rootRenderers = new ArrayList<GLRenderer>();
 	}
 	
 	/**
-	 * Sets the root node of graph of filters that the pipeline will process and draw to the given endpoints of the graph.
+	 * Adds the root node of graph of filters that the pipeline will process and draw to the given endpoints of the graph.
 	 * @param rootRenderer 
-	 * The root node (input node) of the graph of filters and endpoints.
+	 * A root node (input node) of the graph of filters and endpoints.
 	 */
-	public synchronized void setRootRenderer(GLRenderer rootRenderer) {
-		this.rootRenderer = rootRenderer;
+	public synchronized void addRootRenderer(GLRenderer rootRenderer) {
+		rootRenderers.add(rootRenderer);
 	}
 
 	/* (non-Javadoc)
@@ -47,7 +48,9 @@ public class FastImageProcessingPipeline implements Renderer {
 	@Override
 	public void onDrawFrame(GL10 unused) {
 		if(isRendering()) {
-			rootRenderer.onDrawFrame();
+			for(GLRenderer rootRenderer : rootRenderers) {
+				rootRenderer.onDrawFrame();
+			}
 		}
 		synchronized(filtersToDestroy) {
 			for(GLRenderer renderer : filtersToDestroy) {
@@ -76,10 +79,11 @@ public class FastImageProcessingPipeline implements Renderer {
 	}
 	
 	/**
-	 * Starts the rendering of the graph.
+	 * Starts the rendering of the graph. If this is called before a root node renderer has been
+	 * added, it will do nothing.
 	 */
 	public synchronized void startRendering() {
-		if(rootRenderer != null) {
+		if(rootRenderers.size() != 0) {
 			rendering = true;
 		}
 	}

@@ -37,6 +37,11 @@ public abstract class GLRenderer {
 	private boolean initialized;
 	private boolean sizeChanged;
 	
+	private float red;
+	private float green;
+	private float blue;
+	private float alpha;
+	
 	public GLRenderer() {
 		initialized = false;
 		
@@ -263,7 +268,7 @@ public abstract class GLRenderer {
 		}
 
 		if (vertexShaderHandle == 0) {
-			throw new RuntimeException("Could not create vertex shader. Reason: "+ errorInfo);
+			throw new RuntimeException(this + ": Could not create vertex shader. Reason: "+ errorInfo);
 		}
 
 		fragmentShaderHandle = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
@@ -279,7 +284,7 @@ public abstract class GLRenderer {
 			}
 		}
 		if (fragmentShaderHandle == 0) {
-			throw new RuntimeException("Could not create fragment shader. Reason: "+ errorInfo);
+			throw new RuntimeException(this+ ": Could not create fragment shader. Reason: "+ errorInfo);
 		}
 
 		programHandle = GLES20.glCreateProgram();
@@ -316,7 +321,7 @@ public abstract class GLRenderer {
         GLES20.glUseProgram(programHandle);
 
 		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
-		GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1f);
+		GLES20.glClearColor(getBackgroundRed(), getBackgroundGreen(), getBackgroundBlue(), getBackgroundAlpha());
 		
 		passShaderValues();
 		
@@ -344,5 +349,44 @@ public abstract class GLRenderer {
 		  		+ "void main(){\n"
 		  		+ "   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+","+VARYING_TEXCOORD+");\n"	
 		  		+ "}\n";		
+	}
+	
+	public void setBackgroundColour(float red, float green, float blue, float alpha) {
+		this.setBackgroundRed(red);
+		this.setBackgroundGreen(green);
+		this.setBackgroundBlue(blue);
+		this.setBackgroundAlpha(alpha);
+	}
+
+	public float getBackgroundRed() {
+		return red;
+	}
+
+	public void setBackgroundRed(float red) {
+		this.red = red;
+	}
+
+	public float getBackgroundGreen() {
+		return green;
+	}
+
+	public void setBackgroundGreen(float green) {
+		this.green = green;
+	}
+
+	public float getBackgroundBlue() {
+		return blue;
+	}
+
+	public void setBackgroundBlue(float blue) {
+		this.blue = blue;
+	}
+
+	public float getBackgroundAlpha() {
+		return alpha;
+	}
+
+	public void setBackgroundAlpha(float alpha) {
+		this.alpha = alpha;
 	}
 }

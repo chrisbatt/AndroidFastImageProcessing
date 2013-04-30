@@ -1,28 +1,14 @@
 package project.android.imageprocessing.filter.effect;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.BasicFilter;
 
 public class KuwaharaFilter extends BasicFilter {
 	protected static final String UNIFORM_RADIUS = "u_Radius";
 	
-	private int radiusHandle;
 	private int radius;
 	
 	public KuwaharaFilter(int radius) {
 		this.radius = radius;
-	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		radiusHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_RADIUS);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1i(radiusHandle, radius);
 	}
 	
 	@Override
@@ -31,7 +17,7 @@ public class KuwaharaFilter extends BasicFilter {
 				"precision highp float;\n" 
 				+"uniform sampler2D "+UNIFORM_TEXTURE0+";\n"  
 				+"varying vec2 "+VARYING_TEXCOORD+";\n"	
-				+"uniform int "+UNIFORM_RADIUS+";\n"	
+				+"const int "+UNIFORM_RADIUS+" = "+radius+";\n"	
 				+"const vec2 src_size = vec2 (1.0 / 768.0, 1.0 / 1024.0);\n"
 				
 		  		+"void main(){\n"
@@ -41,6 +27,7 @@ public class KuwaharaFilter extends BasicFilter {
 				+"  vec3 m0 = vec3(0.0); vec3 m1 = vec3(0.0); vec3 m2 = vec3(0.0); vec3 m3 = vec3(0.0);\n"
 				+"  vec3 s0 = vec3(0.0); vec3 s1 = vec3(0.0); vec3 s2 = vec3(0.0); vec3 s3 = vec3(0.0);\n"
 				+"  vec3 c;\n"
+				
 				+"	for (j = -"+UNIFORM_RADIUS+"; j <= 0; ++j)  {\n"
 				+"		for (i = -"+UNIFORM_RADIUS+"; i <= 0; ++i)  {\n"
 		        +"     		c = texture2D("+UNIFORM_TEXTURE0+", uv + vec2(i,j) * src_size).rgb;\n"

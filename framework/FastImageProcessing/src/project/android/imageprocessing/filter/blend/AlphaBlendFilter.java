@@ -1,7 +1,7 @@
 package project.android.imageprocessing.filter.blend;
 
-import android.opengl.GLES20;
 import project.android.imageprocessing.filter.MultiInputFilter;
+import android.opengl.GLES20;
 
 public class AlphaBlendFilter extends MultiInputFilter {
 	private static final String UNIFORM_MIX_PERCENT = "u_MixPercent";
