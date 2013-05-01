@@ -3,6 +3,12 @@ package project.android.imageprocessing.filter.processing;
 import project.android.imageprocessing.filter.TwoPassMultiPixelFilter;
 import android.opengl.GLES20;
 
+/**
+ * A bilateral blur, which tries to blur similar color values while preserving sharp edges
+ * blurSize: A multiplier for the size of the blur, ranging from 0.0 on up
+ * distanceNormalizationFactor: A normalization factor for the distance between central color and sample color
+ * @author Chris Batt
+ */
 public class BilateralBlurFilter extends TwoPassMultiPixelFilter {
 	private static final String UNIFORM_DISTANCE_NORMALIZATION = "u_DistanceNormalization";
 	
@@ -13,18 +19,6 @@ public class BilateralBlurFilter extends TwoPassMultiPixelFilter {
 		this.distanceNormalization = distanceNormalizationFactor;
 	}
 			
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		distanceNormalizationHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DISTANCE_NORMALIZATION);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(distanceNormalizationHandle, distanceNormalization);
-	} 
-		
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -109,5 +103,17 @@ public class BilateralBlurFilter extends TwoPassMultiPixelFilter {
 				     
 				+"   gl_FragColor = sum / gaussianWeightTotal;\n"
 				+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		distanceNormalizationHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DISTANCE_NORMALIZATION);
+	} 
+		
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(distanceNormalizationHandle, distanceNormalization);
 	}
 }

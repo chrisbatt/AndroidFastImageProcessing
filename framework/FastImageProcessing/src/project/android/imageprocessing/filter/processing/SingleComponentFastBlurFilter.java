@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.processing;
 
 import project.android.imageprocessing.filter.TwoPassMultiPixelFilter;
 
+/**
+ * A modification of the {@link FastBlurFilter} to only operate on the red component
+ * @author Chris Batt
+ */
 public class SingleComponentFastBlurFilter extends TwoPassMultiPixelFilter {
 		
 	@Override

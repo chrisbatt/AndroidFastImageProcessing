@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.colour;
 
 import project.android.imageprocessing.filter.BasicFilter;
 
+/**
+ * Inverts the colors of an image
+ * @author Chris Batt
+ */
 public class ColourInvertFilter extends BasicFilter {
 	@Override
 	protected String getFragmentShader() {

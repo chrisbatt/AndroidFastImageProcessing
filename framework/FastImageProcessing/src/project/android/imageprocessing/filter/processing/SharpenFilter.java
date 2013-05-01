@@ -3,6 +3,10 @@ package project.android.imageprocessing.filter.processing;
 import project.android.imageprocessing.filter.MultiPixelRenderer;
 import android.opengl.GLES20;
 
+/**
+ * Applies a sharpen filter to the image
+ * @author Chris Batt
+ */
 public class SharpenFilter extends MultiPixelRenderer {
 	private static final String UNIFORM_SHARPEN_AMOUNT = "u_SharpenAmount";
 	
@@ -12,18 +16,6 @@ public class SharpenFilter extends MultiPixelRenderer {
 	public SharpenFilter(float sharpenAmount) {
 		this.sharpenAmount = sharpenAmount;
 	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		sharpenAmountHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SHARPEN_AMOUNT);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(sharpenAmountHandle, sharpenAmount);
-	} 
 	
 	@Override
 	protected String getFragmentShader() {
@@ -48,5 +40,17 @@ public class SharpenFilter extends MultiPixelRenderer {
 				+"   sum += texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+" - left) * -"+UNIFORM_SHARPEN_AMOUNT+";\n"
 		  		+"   gl_FragColor = sum;\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		sharpenAmountHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SHARPEN_AMOUNT);
+	} 
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(sharpenAmountHandle, sharpenAmount);
 	}
 }

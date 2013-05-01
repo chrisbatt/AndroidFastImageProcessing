@@ -23,18 +23,6 @@ public class HueFilter extends BasicFilter {
 		this.hueAdjust = hueAdjust;
 	}
 	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		hueAdjustHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_HUEADJUST);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(hueAdjustHandle, hueAdjust);
-	} 
-	
 	// Adapted from http://stackoverflow.com/questions/9234724/how-to-change-hue-of-a-texture-with-glsl - see for code and discussion
 	@Override
 	protected String getFragmentShader() {
@@ -66,5 +54,17 @@ public class HueFilter extends BasicFilter {
 		  		+"   color.b = dot(yIQ, kYIQToB);\n"
 				+"   gl_FragColor = color;\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		hueAdjustHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_HUEADJUST);
+	} 
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(hueAdjustHandle, hueAdjust);
 	}
 }

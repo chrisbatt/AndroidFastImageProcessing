@@ -2,6 +2,13 @@ package project.android.imageprocessing.filter.effect;
 
 import android.graphics.PointF;
 
+/**
+ * Same as the GPUImageSphereRefractionFilter, only the image is not inverted and there's a little bit of frosting at the edges of the glass
+ * center: The center about which to apply the distortion
+ * radius: The radius of the distortion, ranging from 0.0 to 1.0
+ * refractiveIndex: The index of refraction for the sphere
+ * @author Chris Batt
+ */
 public class GlassSphereFilter extends SphereRefractionFilter {
 	public GlassSphereFilter(PointF center, float radius, float refractiveIndex, float aspectRatio) {
 		super(center, radius, refractiveIndex, aspectRatio);

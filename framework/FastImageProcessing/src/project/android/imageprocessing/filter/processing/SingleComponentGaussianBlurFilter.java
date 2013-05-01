@@ -3,6 +3,11 @@ package project.android.imageprocessing.filter.processing;
 import project.android.imageprocessing.filter.TwoPassMultiPixelFilter;
 import android.opengl.GLES20;
 
+/**
+ * A modification of the GPUImageGaussianBlurFilter that operates only on the red component
+ * blurSize: A multiplier for the size of the blur, ranging from 0.0 on up
+ * @author Chris Batt
+ */
 public class SingleComponentGaussianBlurFilter extends TwoPassMultiPixelFilter {
 	private static final String UNIFORM_BLUR_SIZE = "u_BlurSize";
 	
@@ -12,18 +17,6 @@ public class SingleComponentGaussianBlurFilter extends TwoPassMultiPixelFilter {
 	public SingleComponentGaussianBlurFilter(float blurSize) {
 		this.blurSize = blurSize;
 	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		blurSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BLUR_SIZE);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(blurSizeHandle, blurSize);
-	} 
 	
 	@Override
 	protected String getFragmentShader() {
@@ -59,5 +52,17 @@ public class SingleComponentGaussianBlurFilter extends TwoPassMultiPixelFilter {
 				+"   sum += texture2D("+UNIFORM_TEXTURE0+", blurCoordinates[8]).r * 0.05;\n"
 		  		+"   gl_FragColor = vec4(vec3(sum), color.a);\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		blurSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BLUR_SIZE);
+	} 
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(blurSizeHandle, blurSize);
 	}
 }

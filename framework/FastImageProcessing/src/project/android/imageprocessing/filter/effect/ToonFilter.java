@@ -3,6 +3,12 @@ package project.android.imageprocessing.filter.effect;
 import project.android.imageprocessing.filter.MultiPixelRenderer;
 import android.opengl.GLES20;
 
+/**
+ * This uses Sobel edge detection to place a black border around objects, and then it quantizes the colors present in the image to give a cartoon-like quality to the image.
+ * threshold: The sensitivity of the edge detection, with lower values being more sensitive. Ranges from 0.0 to 1.0
+ * quantizationLevels: The number of color levels to represent in the final image.
+ * @author Chris Batt
+ */
 public class ToonFilter extends MultiPixelRenderer {
 	private static final String UNIFORM_THRESHOLD = "u_Threshold";
 	private static final String UNIFORM_QUANTIZATION = "u_Quantization";
@@ -17,20 +23,6 @@ public class ToonFilter extends MultiPixelRenderer {
 		this.quantizationLevels = quantizationLevels;
 	}
 		
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		thresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_THRESHOLD);
-		quantizationLevelsHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_QUANTIZATION);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(thresholdHandle, threshold);
-		GLES20.glUniform1f(quantizationLevelsHandle, quantizationLevels);
-	}
-	
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -62,5 +54,19 @@ public class ToonFilter extends MultiPixelRenderer {
 			    +"   float thresholdTest = 1.0 - step("+UNIFORM_THRESHOLD+", mag);\n"
 			    +"   gl_FragColor = vec4(posterizedImageColor * thresholdTest, color.a);\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		thresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_THRESHOLD);
+		quantizationLevelsHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_QUANTIZATION);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(thresholdHandle, threshold);
+		GLES20.glUniform1f(quantizationLevelsHandle, quantizationLevels);
 	}
 }

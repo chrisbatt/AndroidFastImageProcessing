@@ -4,6 +4,13 @@ import project.android.imageprocessing.filter.BasicFilter;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+/**
+ * Creates a bulge distortion on the image
+ * radius: The radius from the center to apply the distortion (in normalized coordinates from 0 - 1.0)
+ * center: The center of the image (in normalized coordinates from 0 - 1.0) about which to distort
+ * scale: The amount of distortion to apply, from -1.0 to 1.0
+ * @author Chris Batt
+ */
 public class BulgeDistortionFilter extends BasicFilter {
 	protected static final String UNIFORM_CENTER = "u_Center";
 	protected static final String UNIFORM_RADIUS = "u_Radius";
@@ -26,24 +33,6 @@ public class BulgeDistortionFilter extends BasicFilter {
 		this.aspectRatio = aspectRatio;
 	}
 		
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		centerHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CENTER);
-		radiusHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_RADIUS);
-		distortionAmountHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DISTORTION_AMOUNT);
-		aspectRatioHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ASPECT_RATIO);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform2f(centerHandle, center.x, center.y);
-		GLES20.glUniform1f(radiusHandle, radius);
-		GLES20.glUniform1f(distortionAmountHandle, distortionAmount);
-		GLES20.glUniform1f(aspectRatioHandle, aspectRatio);
-	}
-	
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -68,5 +57,23 @@ public class BulgeDistortionFilter extends BasicFilter {
 			    +"   }\n"
 			    +"   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+", textureCoordinateToUse);\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		centerHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CENTER);
+		radiusHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_RADIUS);
+		distortionAmountHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DISTORTION_AMOUNT);
+		aspectRatioHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ASPECT_RATIO);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform2f(centerHandle, center.x, center.y);
+		GLES20.glUniform1f(radiusHandle, radius);
+		GLES20.glUniform1f(distortionAmountHandle, distortionAmount);
+		GLES20.glUniform1f(aspectRatioHandle, aspectRatio);
 	}
 }

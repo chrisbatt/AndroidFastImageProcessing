@@ -2,6 +2,12 @@ package project.android.imageprocessing.filter.processing;
 
 import project.android.imageprocessing.filter.MultiPixelRenderer;
 
+/**
+ * Applies a directional motion blur to an image
+ * blurSize: A multiplier for the blur size, ranging from 0.0 on up
+ * blurAngle: The angular direction of the blur, in degrees.
+ * @author Chris Batt
+ */
 public class MotionBlurFilter extends MultiPixelRenderer {
 	
 	private float blurSize;
@@ -12,12 +18,6 @@ public class MotionBlurFilter extends MultiPixelRenderer {
 		this.degree = degree;
 	}
 
-	@Override
-	protected void handleSizeChange() {
-		texelWidth = (float) (blurSize * Math.cos(degree * Math.PI / 180.0)) / (float)getWidth();
-		texelHeight = (float) (blurSize * Math.sin(degree * Math.PI / 180.0)) / (float)getHeight();
-	}
-	
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -40,5 +40,12 @@ public class MotionBlurFilter extends MultiPixelRenderer {
 		  		+"   fragColour += texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+" - step * 4.0) * 0.05;\n"
 		  		+"   gl_FragColor = fragColour;\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void handleSizeChange() {
+		super.handleSizeChange();
+		texelWidth = (float) (blurSize * Math.cos(degree * Math.PI / 180.0)) / (float)getWidth();
+		texelHeight = (float) (blurSize * Math.sin(degree * Math.PI / 180.0)) / (float)getHeight();
 	}
 }

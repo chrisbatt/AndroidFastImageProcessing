@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a hue blend of two images
+ * @author Chris Batt
+ */
 public class HueBlendFilter extends MultiInputFilter {
 	public HueBlendFilter() {
 		super(2);

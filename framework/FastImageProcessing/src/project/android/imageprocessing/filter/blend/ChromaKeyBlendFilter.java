@@ -3,6 +3,13 @@ package project.android.imageprocessing.filter.blend;
 import project.android.imageprocessing.filter.MultiInputFilter;
 import android.opengl.GLES20;
 
+/**
+ * Selectively replaces a color in the first image with the second image
+ * colour: The colour to match with
+ * thresholdSensitivity: How close a color match needs to exist to the target color to be replaced
+ * smoothing: How smoothly to blend for the color match
+ * @author Chris Batt
+ */
 public class ChromaKeyBlendFilter extends MultiInputFilter {
 	private static final String UNIFORM_COLOUR = "u_Colour";
 	private static final String UNIFORM_THRESHOLD = "u_Threshold";
@@ -20,22 +27,6 @@ public class ChromaKeyBlendFilter extends MultiInputFilter {
 		this.colour = colour;
 		this.threshold = threshold;
 		this.smoothing = smoothing;
-	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		colourHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_COLOUR);
-		thresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_THRESHOLD);
-		smoothingHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SMOOTHING);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform3f(colourHandle, colour[0], colour[1], colour[2]);
-		GLES20.glUniform1f(thresholdHandle, threshold);
-		GLES20.glUniform1f(smoothingHandle, smoothing);
 	}
 	
 	@Override
@@ -60,5 +51,21 @@ public class ChromaKeyBlendFilter extends MultiInputFilter {
 		  		+"   float blendValue = smoothstep("+UNIFORM_THRESHOLD+", "+UNIFORM_THRESHOLD+" + "+UNIFORM_SMOOTHING+", distance(vec2(Cr, Cb), vec2(maskCr, maskCb)));"
 		  		+"   gl_FragColor = mix(color, texture2D("+UNIFORM_TEXTUREBASE+1+","+VARYING_TEXCOORD+"), blendValue);\n"
 		  		+"}\n";	
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		colourHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_COLOUR);
+		thresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_THRESHOLD);
+		smoothingHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SMOOTHING);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform3f(colourHandle, colour[0], colour[1], colour[2]);
+		GLES20.glUniform1f(thresholdHandle, threshold);
+		GLES20.glUniform1f(smoothingHandle, smoothing);
 	}
 }

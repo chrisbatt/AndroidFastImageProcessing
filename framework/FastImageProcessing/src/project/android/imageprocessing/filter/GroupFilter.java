@@ -9,10 +9,15 @@ import project.android.imageprocessing.output.GLTextureInputRenderer;
 /**
  * A multiple filter renderer extension of the BasicFilter. 
  * This class allows for a filter that contains multiple filters to create the output. 
- * This class can be used as the base for a filter which is made up of multiple filters.
- * By itself, this class is not useful because it's fragment shader only uses one texture. 
- * To take advantage of the multiple texture inputs, the getFragmentShader() method should be
- * override to return a more useful fragment shader.
+ * This class can be used as the base for a filter which is made up of multiple filters. 
+ * Similar to the CompositeFilter, the GroupFilter consists of multiple filters.  
+ * The difference is that the CompositeFilter has its own shaders whereas the GroupFilter does not.
+ * This class is simply a wrapper for a small pipeline of filters. Like the CompositeFilter, all filters
+ * must be registered. The filters that begin the internal pipeline of this filter should be registered as
+ * initial filters. The filters that end the pipeline and produce output for the next filter in the external chain
+ * should be registered as terminal filters.  All other filters that are internal to this class should be
+ * registered using registerFilter(BasicFilter filter).  In most cases there should only be one terminalFilter because
+ * there is no way to separate the outputs into different streams. 
  * @author Chris Batt
  */
 public abstract class GroupFilter extends BasicFilter {
@@ -22,8 +27,7 @@ public abstract class GroupFilter extends BasicFilter {
 	private List<BasicFilter> terminalFilters;
 	
 	/**
-	 * Creates a MultiInputFilter with any number of initial filters or filter graphs that produce a
-	 * set number of textures which can be used by this filter.
+	 * Creates a GroupFilter with any number of initial filters or filter graphs.
 	 */
 	public GroupFilter() {
 		initialFilters = new ArrayList<BasicFilter>();
@@ -31,22 +35,17 @@ public abstract class GroupFilter extends BasicFilter {
 		filters = new ArrayList<BasicFilter>();
 	}
 	
-	protected void registerInitialFilter(BasicFilter filter) {
-		initialFilters.add(filter);
-		registerFilter(filter);
-	}
-	
-	protected void registerTerminalFilter(BasicFilter filter) {
-		terminalFilters.add(filter);
-		registerFilter(filter);
-	}
-	
-	protected void registerFilter(BasicFilter filter) {
-		if(!filters.contains(filter)) {
-			filters.add(filter);
+	/* (non-Javadoc)
+	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#destroy()
+	 */
+	@Override
+	public void destroy() {
+		super.destroy();
+		for(BasicFilter filter : filters) {
+			filter.destroy();
 		}
 	}
-
+	
 	/*
 	 * If the source is one of the end points of the input filters then it is the result 
 	 * of one of the internal filters. When all internal filters have finished we can
@@ -74,18 +73,29 @@ public abstract class GroupFilter extends BasicFilter {
 		}
 	}
 	
+	protected void registerFilter(BasicFilter filter) {
+		if(!filters.contains(filter)) {
+			filters.add(filter);
+		}
+	}
+
+	protected void registerInitialFilter(BasicFilter filter) {
+		initialFilters.add(filter);
+		registerFilter(filter);
+	}
+	
+	protected void registerTerminalFilter(BasicFilter filter) {
+		terminalFilters.add(filter);
+		registerFilter(filter);
+	}
+	
+	/* (non-Javadoc)
+	 * @see project.android.imageprocessing.GLRenderer#setRenderSize(int, int)
+	 */
 	@Override
 	public void setRenderSize(int width, int height) {
 		for(BasicFilter filter : filters) {
 			filter.setRenderSize(width, height);
-		}
-	}
-	
-	@Override
-	public void destroy() {
-		super.destroy();
-		for(BasicFilter filter : filters) {
-			filter.destroy();
 		}
 	}
 }

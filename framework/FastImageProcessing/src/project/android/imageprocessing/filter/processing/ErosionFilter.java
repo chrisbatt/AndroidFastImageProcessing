@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.processing;
 
 import project.android.imageprocessing.filter.TwoPassMultiPixelFilter;
 
+/**
+ * This performs an image erosion operation, where the minimum intensity of the red channel in a rectangular neighborhood is used for the intensity of this pixel. The radius of the rectangular area to sample over is specified on initialization, with a range of 1+ pixels. This is intended for use with grayscale images, and it expands dark regions.
+ * @author Chris Batt
+ */
 public class ErosionFilter extends TwoPassMultiPixelFilter  {
 	private int erosionRadius;
 	

@@ -3,6 +3,12 @@ package project.android.imageprocessing.filter.effect;
 import project.android.imageprocessing.filter.BasicFilter;
 import android.opengl.GLES20;
 
+/**
+ * This converts an image into a black-and-white crosshatch pattern
+ * crossHatchSpacing: The fractional width of the image to use as the spacing for the crosshatch.
+ * lineWidth: A relative width for the crosshatch lines.
+ * @author Chris Batt
+ */
 public class CrosshatchFilter extends BasicFilter {
 	protected static final String UNIFORM_CROSS_HATCH_SPACING = "u_CrossHatchSpacing";
 	protected static final String UNIFORM_LINE_WIDTH = "u_LineWidth";
@@ -15,20 +21,6 @@ public class CrosshatchFilter extends BasicFilter {
 	public CrosshatchFilter(float crossHatchSpacing, float lineWidth) {
 		this.crossHatchSpacing = crossHatchSpacing;
 		this.lineWidth = lineWidth;
-	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		crossHatchSpacingHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CROSS_HATCH_SPACING);
-		lineWidthHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_LINE_WIDTH);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(crossHatchSpacingHandle, crossHatchSpacing);
-		GLES20.glUniform1f(lineWidthHandle, lineWidth);
 	}
 	
 	@Override
@@ -66,5 +58,19 @@ public class CrosshatchFilter extends BasicFilter {
 		  	    +"	}\n"
 		  	    +"  gl_FragColor = colorToDisplay;\n"
 		  		+"}\n";	
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		crossHatchSpacingHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CROSS_HATCH_SPACING);
+		lineWidthHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_LINE_WIDTH);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(crossHatchSpacingHandle, crossHatchSpacing);
+		GLES20.glUniform1f(lineWidthHandle, lineWidth);
 	}
 }

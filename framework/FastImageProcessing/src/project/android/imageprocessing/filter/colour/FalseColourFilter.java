@@ -4,6 +4,12 @@ import project.android.imageprocessing.filter.BasicFilter;
 import android.opengl.GLES20;
 
 
+/**
+ * Uses the luminance of the image to mix between two user-specified colors
+ * firstColor: The color used replace the dark areas of the image
+ * secondColor: The color used replace the light areas of the image
+ * @author Chris Batt
+ */
 public class FalseColourFilter extends BasicFilter {
 	private static final String UNIFORM_SHADOW_COLOUR = "u_ShadowColour";
 	private static final String UNIFORM_HIGHLIGHT_COLOUR = "u_HightlightColour";
@@ -19,19 +25,6 @@ public class FalseColourFilter extends BasicFilter {
 	}
 	
 	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		shadowColourHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SHADOW_COLOUR);
-		highlightColourHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_HIGHLIGHT_COLOUR); 
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform3f(shadowColourHandle, shadowColour[0], shadowColour[1], shadowColour[2]);
-		GLES20.glUniform3f(highlightColourHandle, highlightColour[0], highlightColour[1], highlightColour[2]);
-	}
-	@Override
 	protected String getFragmentShader() {
 		return 
 				"precision mediump float;\n" 
@@ -46,5 +39,18 @@ public class FalseColourFilter extends BasicFilter {
 				+"   float luminance =  dot(color.rgb, luminanceWeighting);\n"
 		  		+"   gl_FragColor = vec4(mix("+UNIFORM_SHADOW_COLOUR+", "+UNIFORM_HIGHLIGHT_COLOUR+", luminance), color.a);\n"
 		  		+"}\n";	
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		shadowColourHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SHADOW_COLOUR);
+		highlightColourHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_HIGHLIGHT_COLOUR); 
+	}
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform3f(shadowColourHandle, shadowColour[0], shadowColour[1], shadowColour[2]);
+		GLES20.glUniform3f(highlightColourHandle, highlightColour[0], highlightColour[1], highlightColour[2]);
 	}
 }

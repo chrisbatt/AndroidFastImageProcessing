@@ -5,6 +5,14 @@ import android.content.Context;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+/**
+ * This filter takes an input tileset, the tiles must ascend in luminance. It looks at the input image and replaces each display tile with an input tile according to the luminance of that tile. The idea was to replicate the ASCII video filters seen in other apps, but the tileset can be anything.
+ * inputTileSize: the size of the tiles in the input image
+ * numTiles: the number of tiles in the input image (must be square?)
+ * displayTileSize: the size of the tiles that will be displayed in the mosaic output
+ * colorOn: whether or not to use the input colour or the input tile colour.
+ * @author Chris Batt
+ */
 public class MosaicFilter extends LookupFilter {
 	protected static final String UNIFORM_INPUT_SIZE = "u_InputSize";
 	protected static final String UNIFORM_DISPLAY_SIZE = "u_DisplaySize";
@@ -26,28 +34,6 @@ public class MosaicFilter extends LookupFilter {
 		this.displayTileSize = displayTileSize;
 		this.numOfTiles = numOfTiles;
 		this.color = color;
-	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		inputTileSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INPUT_SIZE);
-		displayTileSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DISPLAY_SIZE);
-		numOfTilesHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_NUM_TILES);
-		colorHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_COLOR);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform2f(inputTileSizeHandle, inputTileSize.x, inputTileSize.y);
-		GLES20.glUniform2f(displayTileSizeHandle, displayTileSize.x, displayTileSize.y);
-		GLES20.glUniform1i(numOfTilesHandle, numOfTiles);
-		if(color) {
-			GLES20.glUniform1i(colorHandle, 1);
-		} else {
-			GLES20.glUniform1i(colorHandle, 0);
-		}
 	}
 	
 	@Override
@@ -82,6 +68,28 @@ public class MosaicFilter extends LookupFilter {
 	  		    +"	}\n"	
 	  		    +"	gl_FragColor = color;\n"	 
 		  		+ "}\n";		
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		inputTileSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INPUT_SIZE);
+		displayTileSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DISPLAY_SIZE);
+		numOfTilesHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_NUM_TILES);
+		colorHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_COLOR);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform2f(inputTileSizeHandle, inputTileSize.x, inputTileSize.y);
+		GLES20.glUniform2f(displayTileSizeHandle, displayTileSize.x, displayTileSize.y);
+		GLES20.glUniform1i(numOfTilesHandle, numOfTiles);
+		if(color) {
+			GLES20.glUniform1i(colorHandle, 1);
+		} else {
+			GLES20.glUniform1i(colorHandle, 0);
+		}
 	}
 
 }

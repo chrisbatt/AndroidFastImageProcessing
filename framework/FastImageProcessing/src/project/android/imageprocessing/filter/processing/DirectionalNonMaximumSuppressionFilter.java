@@ -3,6 +3,11 @@ package project.android.imageprocessing.filter.processing;
 import project.android.imageprocessing.filter.MultiPixelRenderer;
 import android.opengl.GLES20;
 
+
+/**
+ * Currently only used as part of the CannyEdgeDetectionFilter.
+ * @author Chris Batt
+ */
 public class DirectionalNonMaximumSuppressionFilter extends MultiPixelRenderer {
 	private static final String UNIFORM_UPPER_THRESHOLD = "u_UpperThreshold";
 	private static final String UNIFORM_LOWER_THRESHOLD = "u_LowerThreshold";
@@ -21,20 +26,6 @@ public class DirectionalNonMaximumSuppressionFilter extends MultiPixelRenderer {
 		this.upperThreshold = upperThreshold;
 		this.lowerThreshold = lowerThreshold;
 	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		upperThresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_UPPER_THRESHOLD);
-		lowerThresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_LOWER_THRESHOLD);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(upperThresholdHandle, upperThreshold);
-		GLES20.glUniform1f(lowerThresholdHandle, lowerThreshold);
-	} 
 	
 	@Override
 	protected String getFragmentShader() {
@@ -60,5 +51,19 @@ public class DirectionalNonMaximumSuppressionFilter extends MultiPixelRenderer {
 	     
 		  		+"   gl_FragColor = vec4(vec3(multiplier), 1.0);\n"
 				+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		upperThresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_UPPER_THRESHOLD);
+		lowerThresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_LOWER_THRESHOLD);
+	} 
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(upperThresholdHandle, upperThreshold);
+		GLES20.glUniform1f(lowerThresholdHandle, lowerThreshold);
 	}
 }

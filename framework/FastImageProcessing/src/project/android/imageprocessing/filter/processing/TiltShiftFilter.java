@@ -4,6 +4,14 @@ import project.android.imageprocessing.filter.CompositeFilter;
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import android.opengl.GLES20;
 
+/**
+ * A simulated tilt shift lens effect
+ * blurSize: A multiplier for the size of the out-of-focus blur, ranging from 0.0 on up
+ * topFocusLevel: The normalized location of the top of the in-focus area in the image, this value should be lower than bottomFocusLevel
+ * bottomFocusLevel: The normalized location of the bottom of the in-focus area in the image, this value should be higher than topFocusLevel
+ * focusFallOffRate: The rate at which the image gets blurry away from the in-focus region
+ * @author Chris Batt
+ */
 public class TiltShiftFilter extends CompositeFilter {
 	protected static final String UNIFORM_FOCUS_FALLOFF = "u_FocusFalloff";
 	protected static final String UNIFORM_TOP_FOCUS = "u_TopFocus";
@@ -32,33 +40,6 @@ public class TiltShiftFilter extends CompositeFilter {
 	}
 	
 	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		focusFallOffRateHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_FOCUS_FALLOFF);
-		topFocusLevelHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TOP_FOCUS);
-		bottomFocusLevelHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BOTTOM_FOCUS);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(focusFallOffRateHandle, focusFallOffRate);
-		GLES20.glUniform1f(topFocusLevelHandle, topFocusLevel);
-		GLES20.glUniform1f(bottomFocusLevelHandle, bottomFocusLevel);
-	} 
-	
-	@Override
-	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
-		if(filterLocations.size() < 2 || !filterLocations.contains(source)) {
-			clearRegisteredFilterLocations();
-			registerFilterLocation(source, 0);
-			registerFilterLocation(blur, 1);
-			registerInputOutputFilter(source);
-		}
-		super.newTextureReady(texture, source);
-	}
-	
-	@Override
 	protected String getFragmentShader() {
 		return
 				 "precision mediump float;\n" 
@@ -77,5 +58,32 @@ public class TiltShiftFilter extends CompositeFilter {
 				+"   blurIntensity += smoothstep("+UNIFORM_BOTTOM_FOCUS+", "+UNIFORM_BOTTOM_FOCUS+" + "+UNIFORM_FOCUS_FALLOFF+", "+VARYING_TEXCOORD+".y);\n"
 				+"   gl_FragColor = mix(sharpImageColor, blurredImageColor, blurIntensity);\n"
 				+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		focusFallOffRateHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_FOCUS_FALLOFF);
+		topFocusLevelHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TOP_FOCUS);
+		bottomFocusLevelHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BOTTOM_FOCUS);
+	} 
+	
+	@Override
+	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
+		if(filterLocations.size() < 2 || !filterLocations.contains(source)) {
+			clearRegisteredFilterLocations();
+			registerFilterLocation(source, 0);
+			registerFilterLocation(blur, 1);
+			registerInputOutputFilter(source);
+		}
+		super.newTextureReady(texture, source);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(focusFallOffRateHandle, focusFallOffRate);
+		GLES20.glUniform1f(topFocusLevelHandle, topFocusLevel);
+		GLES20.glUniform1f(bottomFocusLevelHandle, bottomFocusLevel);
 	}
 }

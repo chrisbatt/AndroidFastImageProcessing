@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a darken blend of two images. Takes the dark colour of the two images for each pixel.
+ * @author Chris Batt
+ */
 public class DarkenBlendFilter extends MultiInputFilter {
 	public DarkenBlendFilter() {
 		super(2);

@@ -24,18 +24,6 @@ public class ContrastFilter extends BasicFilter {
 	}
 	
 	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		contrastHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CONTRAST);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(contrastHandle, contrast);
-	} 
-	
-	@Override
 	protected String getFragmentShader() {
 		return 
 				 "precision mediump float;\n" 
@@ -47,5 +35,17 @@ public class ContrastFilter extends BasicFilter {
 		  		+"   vec4 color = texture2D("+UNIFORM_TEXTURE0+","+VARYING_TEXCOORD+");\n"	
 				+"   gl_FragColor = vec4(((color.rgb - vec3(0.5)) * "+UNIFORM_CONTRAST+" + vec3(0.5)), color.a);\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		contrastHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CONTRAST);
+	} 
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(contrastHandle, contrast);
 	}
 }

@@ -93,11 +93,11 @@ public class ImageProcessingActivity extends Activity {
 		addFilter(new CannyEdgeDetectionFilter(1.0f, 0.1f, 0.4f));
 		addFilter(new ThresholdEdgeDetectionFilter(0.6f));
 		addFilter(new SobelEdgeDetectionFilter());
-		addFilter(new TiltShiftFilter(2f, 0.4f, 0.6f, 0.2f));
+		addFilter(new TiltShiftFilter(4f, 0.4f, 0.6f, 0.2f));
 		addFilter(new BilateralBlurFilter(1f));
 		addFilter(new MedianFilter());
-		addFilter(new GaussianBlurPositionFilter(2.3f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f));
-		addFilter(new GaussianSelectiveBlurFilter(2.3f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f));
+		addFilter(new GaussianBlurPositionFilter(4f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f));
+		addFilter(new GaussianSelectiveBlurFilter(4f, 1.2f, new PointF(0.4f,0.5f), 0.5f, 0.1f));
 		addFilter(new SingleComponentGaussianBlurFilter(2.3f));
 		addFilter(new SingleComponentFastBlurFilter());
 		addFilter(new FastBlurFilter());

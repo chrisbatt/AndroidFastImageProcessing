@@ -1,6 +1,11 @@
 package project.android.imageprocessing.filter.colour;
 
 
+/**
+ * Simple sepia tone filter
+ * intensity: The degree to which the sepia tone replaces the normal image color (0.0 - 1.0)
+ * @author Chris Batt
+ */
 public class SepiaFilter extends ColourMatrixFilter {
 
 	public SepiaFilter() {

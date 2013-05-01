@@ -6,6 +6,11 @@ import java.nio.FloatBuffer;
 
 import project.android.imageprocessing.filter.BasicFilter;
 
+/**
+ * Flips the image in the given orientation.
+ * flipDirection: The direction to flip the image
+ * @author Chris Batt
+ */
 public class FlipFilter extends BasicFilter {
 	public static final int FLIP_VERTICAL = 0;
 	public static final int FLIP_HORIZONTAL = 1;

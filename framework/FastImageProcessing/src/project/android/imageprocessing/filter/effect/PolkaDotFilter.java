@@ -2,6 +2,12 @@ package project.android.imageprocessing.filter.effect;
 
 import android.opengl.GLES20;
 
+/**
+ * Breaks an image up into colored dots within a regular grid
+ * fractionalWidthOfAPixel: How large the dots are, as a fraction of the width and height of the image (0.0 - 1.0)
+ * dotScaling: What fraction of each grid space is taken up by a dot, from 0.0 to 1.0.
+ * @author Chris Batt
+ */
 public class PolkaDotFilter extends PixellateFilter {
 	protected static final String UNIFORM_DOT_SCALING = "u_DotScaling";
 	
@@ -11,18 +17,6 @@ public class PolkaDotFilter extends PixellateFilter {
 	public PolkaDotFilter(float dotScaling, float fractionalWidth, float aspectRatio) {
 		super(fractionalWidth, aspectRatio);
 		this.dotScaling = dotScaling;
-	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		dotScalingHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DOT_SCALING);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(dotScalingHandle, dotScaling);
 	}
 	
 	@Override
@@ -44,5 +38,17 @@ public class PolkaDotFilter extends PixellateFilter {
 			    +"   lowp float checkForPresenceWithinDot = step(distanceFromSamplePoint, ("+UNIFORM_FRACTIONAL_WIDTH+" * 0.5) * "+UNIFORM_DOT_SCALING+");\n"
 			    +"   gl_FragColor = vec4(texture2D("+UNIFORM_TEXTURE0+", samplePos ).rgb * checkForPresenceWithinDot, 1.0);\n"
 		  		+"}\n";	
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		dotScalingHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DOT_SCALING);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(dotScalingHandle, dotScaling);
 	}
 }

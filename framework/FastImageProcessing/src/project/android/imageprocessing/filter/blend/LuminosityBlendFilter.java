@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a luminosity blend of two images
+ * @author Chris Batt
+ */
 public class LuminosityBlendFilter extends MultiInputFilter {
 	public LuminosityBlendFilter() {
 		super(2);

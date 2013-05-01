@@ -3,6 +3,10 @@ package project.android.imageprocessing.filter.colour;
 import project.android.imageprocessing.filter.CompositeFilter;
 import project.android.imageprocessing.filter.processing.BoxBlurFilter;
 
+/**
+ * Determines the local luminance around a pixel, then turns the pixel black if it is below that local luminance and white if above. This can be useful for picking out text under varying lighting conditions.
+ * @author Chris Batt
+ */
 public class AdaptiveThresholdFilter extends CompositeFilter {
 	
 	public AdaptiveThresholdFilter() {

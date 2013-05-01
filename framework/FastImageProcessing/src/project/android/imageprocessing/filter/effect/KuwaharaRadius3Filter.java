@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.effect;
 
 import project.android.imageprocessing.filter.BasicFilter;
 
+/**
+ * A "faster" version of {@link KuwaharaFilter} that has a fixed radius of 3.
+ * @author Chris Batt
+ */
 public class KuwaharaRadius3Filter extends BasicFilter {
 	
 	@Override

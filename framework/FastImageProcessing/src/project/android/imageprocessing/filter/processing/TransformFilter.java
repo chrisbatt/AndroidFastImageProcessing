@@ -3,6 +3,10 @@ package project.android.imageprocessing.filter.processing;
 import project.android.imageprocessing.filter.BasicFilter;
 import android.opengl.GLES20;
 
+/**
+ * Applies an abitrary transform to the image.  Allows for the image to be center or achored top left while this transform is being applied.
+ * @author Chris Batt
+ */
 public class TransformFilter extends BasicFilter {
 	private static final String UNIFORM_TRANSFORM_MATRIX = "u_TransformMatrix";
 	private static final String UNIFORM_ORTHO_MATRIX = "u_OrthoMatrix";
@@ -18,6 +22,21 @@ public class TransformFilter extends BasicFilter {
 		this.transformMatrix = transformMatrix;
 		this.ignoreAspect = ignoreAspect;
 		this.anchorTopLeft = anchorTopLeft;
+	}
+	
+	@Override
+	protected String getVertexShader() {
+		return 
+				  "attribute vec4 "+ATTRIBUTE_POSITION+";\n"
+				+ "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"
+				+"uniform mat4 "+UNIFORM_ORTHO_MATRIX+";\n"
+				+"uniform mat4 "+UNIFORM_TRANSFORM_MATRIX+";\n"	
+				+ "varying vec2 "+VARYING_TEXCOORD+";\n"	
+				  
+				+ "void main() {\n"	
+				+ "  "+VARYING_TEXCOORD+" = "+ATTRIBUTE_TEXCOORD+";\n"
+				+ "   gl_Position = "+UNIFORM_TRANSFORM_MATRIX+" * vec4("+ATTRIBUTE_POSITION+".xyz, 1.0) * "+UNIFORM_ORTHO_MATRIX+";\n"		                                            			 
+				+ "}\n";
 	}
 	
 	@Override
@@ -54,6 +73,15 @@ public class TransformFilter extends BasicFilter {
 		}
 	}
 	
+	
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		transformMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TRANSFORM_MATRIX);
+		orthoMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ORTHO_MATRIX);
+	}
+	
 	private void loadOrthoMatrix(float left, float right, float bottom, float top, float near, float far) {
 		float r_l = right - left;
 		float t_b = top - bottom;
@@ -75,36 +103,12 @@ public class TransformFilter extends BasicFilter {
 			0f, 0f, scale / f_n, tz,
 			0f, 0f, 0f, 1f
 		};
-	}
-	
-	
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		transformMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TRANSFORM_MATRIX);
-		orthoMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ORTHO_MATRIX);
-	}
+	} 
 	
 	@Override
 	protected void passShaderValues() {
 		super.passShaderValues();
 		GLES20.glUniformMatrix4fv(transformMatrixHandle, 1, false, transformMatrix, 0);
 		GLES20.glUniformMatrix4fv(orthoMatrixHandle, 1, false, orthoMatrix, 0);
-	} 
-	
-	@Override
-	protected String getVertexShader() {
-		return 
-				  "attribute vec4 "+ATTRIBUTE_POSITION+";\n"
-				+ "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"
-				+"uniform mat4 "+UNIFORM_ORTHO_MATRIX+";\n"
-				+"uniform mat4 "+UNIFORM_TRANSFORM_MATRIX+";\n"	
-				+ "varying vec2 "+VARYING_TEXCOORD+";\n"	
-				  
-				+ "void main() {\n"	
-				+ "  "+VARYING_TEXCOORD+" = "+ATTRIBUTE_TEXCOORD+";\n"
-				+ "   gl_Position = "+UNIFORM_TRANSFORM_MATRIX+" * vec4("+ATTRIBUTE_POSITION+".xyz, 1.0) * "+UNIFORM_ORTHO_MATRIX+";\n"		                                            			 
-				+ "}\n";
 	}
 }

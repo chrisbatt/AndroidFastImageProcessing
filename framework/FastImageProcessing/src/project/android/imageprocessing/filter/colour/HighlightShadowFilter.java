@@ -3,6 +3,12 @@ package project.android.imageprocessing.filter.colour;
 import project.android.imageprocessing.filter.BasicFilter;
 import android.opengl.GLES20;
 
+/**
+ * Adjusts the shadows and highlights of an image
+ * shadows: Increase to lighten shadows, from 0.0 to 1.0.
+ * highlights: Decrease to darken highlights, from 0.0 to 1.0.
+ * @author Chris Batt
+ */
 public class HighlightShadowFilter extends BasicFilter {
 	private static final String UNIFORM_HIGHLIGHT = "u_Highlight";
 	private static final String UNIFORM_SHADOW = "u_Shadow";
@@ -17,20 +23,6 @@ public class HighlightShadowFilter extends BasicFilter {
 		this.shadow = shadow;
 	}
 	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		highlightHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_HIGHLIGHT);
-		shadowHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SHADOW);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(highlightHandle, highlight);
-		GLES20.glUniform1f(shadowHandle, shadow);
-	}
-
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -49,6 +41,20 @@ public class HighlightShadowFilter extends BasicFilter {
 		  		+ "   vec3 result = vec3(0.0, 0.0, 0.0) + ((luminance + s + h) - 0.0) * ((texColour.rgb - vec3(0.0, 0.0, 0.0))/(luminance - 0.0));\n"
 		  		+ "   gl_FragColor = vec4(result, texColour.a);\n"
 		  		+ "}\n";		
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		highlightHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_HIGHLIGHT);
+		shadowHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SHADOW);
+	}
+
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(highlightHandle, highlight);
+		GLES20.glUniform1f(shadowHandle, shadow);
 	}
 
 }

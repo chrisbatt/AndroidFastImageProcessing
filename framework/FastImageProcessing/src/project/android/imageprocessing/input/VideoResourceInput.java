@@ -53,17 +53,59 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 		this.id = id;
 		startWhenReady = false;
 		ready = false;
+		setRenderSize(player.getVideoWidth(), player.getVideoHeight());
+	}
+	
+	private void bindTexture() {
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+	    GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture_in);
 	}
 	
 	@Override
+	protected void drawFrame() {
+		videoTex.updateTexImage(); 
+		super.drawFrame();
+	}
+	
+	@Override
+	protected String getFragmentShader() {
+		return 
+					 "#extension GL_OES_EGL_image_external : require\n"
+					+"precision mediump float;\n"                         
+					+"uniform samplerExternalOES "+UNIFORM_TEXTURE0+";\n"  
+					+"varying vec2 "+VARYING_TEXCOORD+";\n"
+				
+		 			+ "void main() {\n"
+		 			+ "   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+");\n"
+		 			+ "}\n";
+	}
+	
+	@Override
+	protected String getVertexShader() {
+		return 
+					"uniform mat4 "+UNIFORM_CAM_MATRIX+";\n"
+				  + "attribute vec4 "+ATTRIBUTE_POSITION+";\n"
+				  + "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"	
+				  + "varying vec2 "+VARYING_TEXCOORD+";\n"	
+				  
+				  + "void main() {\n"	
+				  + "   vec4 texPos = "+UNIFORM_CAM_MATRIX+" * vec4("+ATTRIBUTE_TEXCOORD+", 1, 1);\n"
+				  + "   "+VARYING_TEXCOORD+" = texPos.xy;\n"
+				  + "   gl_Position = "+ATTRIBUTE_POSITION+";\n"		                                            			 
+				  + "}\n";		
+	}
+
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+        matrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CAM_MATRIX);    
+	}
+
+
+	@Override
 	protected void initWithGLContext() {
 		ready = false;
-		if(player.isPlaying()) {
-			player.stop();
-			player.reset();
-		}
-		try {
-			player.release(); 
+		try { 
 			player = MediaPlayer.create(context, id); 
 		} catch (Exception e) {
 			Log.e("VideoPlayer", "Failed to load video");
@@ -71,6 +113,7 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
 			Log.e("VideoPlayer", sw.toString());
+			player.release();
 		}
 		setRenderSize(player.getVideoWidth(), player.getVideoHeight());
 		super.initWithGLContext();
@@ -96,25 +139,13 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 			player.start();
 		}
 	}
-	
-	/**
-	 * Sets the video to a new video source. The id must be from the same context as the previous id.
-	 * @param id
-	 * The id that points to the video resource 
+
+	/* (non-Javadoc)
+	 * @see android.graphics.SurfaceTexture.OnFrameAvailableListener#onFrameAvailable(android.graphics.SurfaceTexture)
 	 */
-	public void setVideoSource(int id) {
-		this.id = id;
-	}
-	
 	@Override
-	protected void drawFrame() {
-		videoTex.updateTexImage(); 
-		super.drawFrame();
-	}
-	
-	private void bindTexture() {
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-	    GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture_in);
+	public void onFrameAvailable(SurfaceTexture arg0) {
+		view.requestRender();
 	}
 
 	@Override
@@ -132,48 +163,23 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 	    videoTex.getTransformMatrix(matrix);
 		GLES20.glUniformMatrix4fv(matrixHandle, 1, false, matrix, 0);
 	}
-
-
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-        matrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CAM_MATRIX);    
-	}
-
-	@Override
-	protected String getVertexShader() {
-		return 
-					"uniform mat4 "+UNIFORM_CAM_MATRIX+";\n"
-				  + "attribute vec4 "+ATTRIBUTE_POSITION+";\n"
-				  + "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"	
-				  + "varying vec2 "+VARYING_TEXCOORD+";\n"	
-				  
-				  + "void main() {\n"	
-				  + "   vec4 texPos = "+UNIFORM_CAM_MATRIX+" * vec4("+ATTRIBUTE_TEXCOORD+", 1, 1);\n"
-				  + "   "+VARYING_TEXCOORD+" = texPos.xy;\n"
-				  + "   gl_Position = "+ATTRIBUTE_POSITION+";\n"		                                            			 
-				  + "}\n";		
-	}
-
-	@Override
-	protected String getFragmentShader() {
-		return 
-					 "#extension GL_OES_EGL_image_external : require\n"
-					+"precision mediump float;\n"                         
-					+"uniform samplerExternalOES "+UNIFORM_TEXTURE0+";\n"  
-					+"varying vec2 "+VARYING_TEXCOORD+";\n"
-				
-		 			+ "void main() {\n"
-		 			+ "   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+");\n"
-		 			+ "}\n";
+	
+	/**
+	 * Sets the video to a new video source. The id must be from the same context as the previous id.
+	 * @param id
+	 * The id that points to the video resource 
+	 */
+	public void setVideoSource(int id) {
+		this.id = id;
 	}
 	
-	/* (non-Javadoc)
-	 * @see android.graphics.SurfaceTexture.OnFrameAvailableListener#onFrameAvailable(android.graphics.SurfaceTexture)
+	/**
+	 * Returns whether or not the video is currently playing.
+	 * @return playing
+	 * Whether or not the video is currently playing.
 	 */
-	@Override
-	public void onFrameAvailable(SurfaceTexture arg0) {
-		view.requestRender();
+	public boolean isPlaying() {
+		return player.isPlaying();
 	}
 	
 	/**
@@ -192,6 +198,26 @@ public class VideoResourceInput extends GLTextureOutputRenderer implements OnFra
 	 * Stops the video
 	 */
 	public void stop() {
-		player.stop();
+		player.pause();
+	}
+	
+	/* (non-Javadoc)
+	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#destroy()
+	 */
+	@Override
+	public void destroy() {
+		super.destroy();
+		if(player.isPlaying()) {
+			player.stop();
+			player.release();
+			player = null;
+			ready = false;
+		}
+		if(texture_in != 0) {
+			int[] tex = new int[1];
+			tex[0] = texture_in;
+			GLES20.glDeleteTextures(1, tex, 0);
+			texture_in = 0;
+		}
 	}
 }

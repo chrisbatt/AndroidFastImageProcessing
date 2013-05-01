@@ -3,6 +3,10 @@ package project.android.imageprocessing.filter.processing;
 import project.android.imageprocessing.filter.CompositeMultiPixelFilter;
 import project.android.imageprocessing.filter.colour.GreyScaleFilter;
 
+/**
+ * Sobel edge detection, with edges highlighted in white
+ * @author Chris Batt
+ */
 public class SobelEdgeDetectionFilter extends CompositeMultiPixelFilter {
 	public SobelEdgeDetectionFilter() {
 		super(1);

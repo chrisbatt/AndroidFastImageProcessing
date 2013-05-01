@@ -3,6 +3,12 @@ package project.android.imageprocessing.filter.colour;
 import project.android.imageprocessing.filter.BasicFilter;
 import android.opengl.GLES20;
 
+/**
+ * Converts the image to a single-color version, based on the luminance of each pixel
+ * intensity: The degree to which the specific color replaces the normal image color (0.0 - 1.0)
+ * color: The color to use as the basis for the effect
+ * @author Chris Batt
+ */
 public class MonochromeFilter extends BasicFilter {
 	private static final String UNIFORM_INTENSITY = "u_Intensity";
 	private static final String UNIFORM_COLOUR = "u_Colour";
@@ -17,19 +23,6 @@ public class MonochromeFilter extends BasicFilter {
 		this.colour = colour;
 	}
 	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		intensityHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INTENSITY);
-		colourHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_COLOUR); 
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(intensityHandle, intensity);
-		GLES20.glUniform3f(colourHandle, colour[0], colour[1], colour[2]);
-	}
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -51,5 +44,18 @@ public class MonochromeFilter extends BasicFilter {
 				+"     1.0);\n"
 		  		+"   gl_FragColor = vec4(mix(color.rgb, outputColour.rgb, "+UNIFORM_INTENSITY+"), color.a);\n"
 		  		+"}\n";	
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		intensityHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INTENSITY);
+		colourHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_COLOUR); 
+	}
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(intensityHandle, intensity);
+		GLES20.glUniform3f(colourHandle, colour[0], colour[1], colour[2]);
 	}
 }

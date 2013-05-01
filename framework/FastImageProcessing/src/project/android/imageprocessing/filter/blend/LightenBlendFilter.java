@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a lighten blend of two images. For each pixel it takes the lighter pixel of the two images.
+ * @author Chris Batt
+ */
 public class LightenBlendFilter extends MultiInputFilter {
 	public LightenBlendFilter() {
 		super(2);

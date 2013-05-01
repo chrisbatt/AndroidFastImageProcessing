@@ -24,6 +24,13 @@ public abstract class MultiPixelRenderer extends BasicFilter {
 	}
 	
 	@Override
+	protected void handleSizeChange() {
+		super.handleSizeChange();
+		texelWidth = 1.0f / (float)getWidth();
+		texelHeight = 1.0f / (float)getHeight();
+	}
+	
+	@Override
 	protected void initShaderHandles() {
 		super.initShaderHandles();
 		texelWidthHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXELWIDTH);
@@ -35,11 +42,5 @@ public abstract class MultiPixelRenderer extends BasicFilter {
 		super.passShaderValues();
 		GLES20.glUniform1f(texelWidthHandle, texelWidth);
 		GLES20.glUniform1f(texelHeightHandle, texelHeight);
-	}
-	
-	@Override
-	protected void handleSizeChange() {
-		texelWidth = 1.0f / (float)getWidth();
-		texelHeight = 1.0f / (float)getHeight();
 	}
 }

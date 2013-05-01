@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.processing;
 
 import project.android.imageprocessing.filter.TwoPassMultiPixelFilter;
 
+/**
+ * A hardware-accelerated 9-hit Gaussian blur of an image
+ * @author Chris Batt
+ */
 public class FastBlurFilter extends TwoPassMultiPixelFilter {		
 	@Override
 	protected String getFragmentShader() {

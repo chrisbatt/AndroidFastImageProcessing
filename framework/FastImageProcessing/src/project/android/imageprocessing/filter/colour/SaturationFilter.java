@@ -29,18 +29,6 @@ public class SaturationFilter extends BasicFilter {
 	}
 	
 	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		saturationHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SATURATION);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(saturationHandle, saturation);
-	} 
-	
-	@Override
 	protected String getFragmentShader() {
 		return 
 				 "precision mediump float;\n" 
@@ -55,5 +43,17 @@ public class SaturationFilter extends BasicFilter {
 		  		+"   vec3 greyScaleColor = vec3(luminance);\n"
 				+"   gl_FragColor = vec4(mix(greyScaleColor, color.rgb, "+UNIFORM_SATURATION+"), color.a);\n"
 				+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		saturationHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SATURATION);
+	} 
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(saturationHandle, saturation);
 	}
 }

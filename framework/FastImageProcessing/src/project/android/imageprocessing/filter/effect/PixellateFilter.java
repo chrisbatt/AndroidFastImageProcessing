@@ -3,6 +3,11 @@ package project.android.imageprocessing.filter.effect;
 import project.android.imageprocessing.filter.BasicFilter;
 import android.opengl.GLES20;
 
+/**
+ * Applies a pixellation effect on an image or video
+ * fractionalWidthOfAPixel: How large the pixels are, as a fraction of the width and height of the image (0.0 - 1.0)
+ * @author Chris Batt
+ */
 public class PixellateFilter extends BasicFilter {
 	protected static final String UNIFORM_FRACTIONAL_WIDTH = "u_FractionalWidth";
 	protected static final String UNIFORM_ASPECT_RATIO = "u_AspectRatio";
@@ -15,20 +20,6 @@ public class PixellateFilter extends BasicFilter {
 	public PixellateFilter(float fractionalWidth, float aspectRatio) {
 		this.fractionalWidth = fractionalWidth;
 		this.aspectRatio = aspectRatio;
-	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		fractionalWidthHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_FRACTIONAL_WIDTH);
-		aspectRatioHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ASPECT_RATIO);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(fractionalWidthHandle, fractionalWidth);
-		GLES20.glUniform1f(aspectRatioHandle, aspectRatio);
 	}
 	
 	@Override
@@ -45,5 +36,19 @@ public class PixellateFilter extends BasicFilter {
 			    +"   highp vec2 samplePos = "+VARYING_TEXCOORD+" - mod("+VARYING_TEXCOORD+", sampleDivisor) + 0.5 * sampleDivisor;\n"
 		  		+"   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+", samplePos);\n"
 		  		+"}\n";	
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		fractionalWidthHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_FRACTIONAL_WIDTH);
+		aspectRatioHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ASPECT_RATIO);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(fractionalWidthHandle, fractionalWidth);
+		GLES20.glUniform1f(aspectRatioHandle, aspectRatio);
 	}
 }

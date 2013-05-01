@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a source over blend of two images
+ * @author Chris Batt
+ */
 public class SourceOverBlendFilter extends MultiInputFilter {
 	public SourceOverBlendFilter() {
 		super(2);

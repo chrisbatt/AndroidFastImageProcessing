@@ -1,5 +1,9 @@
 package project.android.imageprocessing.filter.processing;
 
+/**
+ * Currently only used as part of the CannyEdgeDetectionFilter
+ * @author Chris Batt
+ */
 public class DirectionalSobelEdgeDetectionFilter extends SobelEdgeDetectionFilter {
 	@Override
 	protected String getFragmentShader() {

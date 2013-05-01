@@ -4,6 +4,13 @@ import project.android.imageprocessing.filter.BasicFilter;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+/**
+ * Creates a swirl distortion on the image
+ * radius: The radius from the center to apply the distortion
+ * center: The center of the image (in normalized coordinates from 0 - 1.0) about which to twist
+ * angle: The amount of twist to apply to the image
+ * @author Chris Batt
+ */
 public class SwirlFilter extends BasicFilter {
 	protected static final String UNIFORM_CENTER = "u_Center";
 	protected static final String UNIFORM_RADIUS = "u_Radius";
@@ -22,22 +29,6 @@ public class SwirlFilter extends BasicFilter {
 		this.angle = angle;
 	}
 		
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		centerHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CENTER);
-		radiusHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_RADIUS);
-		angleHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ANGLE);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform2f(centerHandle, center.x, center.y);
-		GLES20.glUniform1f(radiusHandle, radius);
-		GLES20.glUniform1f(angleHandle, angle);
-	}
-	
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -62,5 +53,21 @@ public class SwirlFilter extends BasicFilter {
 	     		+"   }\n"
 			    +"   gl_FragColor =  texture2D("+UNIFORM_TEXTURE0+", textureCoordinateToUse);\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		centerHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CENTER);
+		radiusHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_RADIUS);
+		angleHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ANGLE);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform2f(centerHandle, center.x, center.y);
+		GLES20.glUniform1f(radiusHandle, radius);
+		GLES20.glUniform1f(angleHandle, angle);
 	}
 }

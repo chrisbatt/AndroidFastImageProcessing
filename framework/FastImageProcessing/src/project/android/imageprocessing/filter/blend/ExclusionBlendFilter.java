@@ -2,6 +2,11 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+
+/**
+ * Applies an exclusion blend of two images
+ * @author Chris Batt
+ */
 public class ExclusionBlendFilter extends MultiInputFilter {
 	public ExclusionBlendFilter() {
 		super(2);

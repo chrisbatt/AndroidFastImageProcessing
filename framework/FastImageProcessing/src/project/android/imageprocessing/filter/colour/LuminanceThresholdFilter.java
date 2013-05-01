@@ -3,6 +3,11 @@ package project.android.imageprocessing.filter.colour;
 import project.android.imageprocessing.filter.BasicFilter;
 import android.opengl.GLES20;
 
+/**
+ * Pixels with a luminance above the threshold will appear white, and those below will be black
+ * threshold: The luminance threshold, from 0.0 to 1.0
+ * @author Chris Batt
+ */
 public class LuminanceThresholdFilter extends BasicFilter {
 	private static final String UNIFORM_THRESHOLD = "u_Threshold";
 	
@@ -11,18 +16,6 @@ public class LuminanceThresholdFilter extends BasicFilter {
 	
 	public LuminanceThresholdFilter(float threshold) {
 		this.threshold = threshold;
-	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		thresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_THRESHOLD);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(thresholdHandle, threshold);
 	}
 	
 	@Override
@@ -39,5 +32,17 @@ public class LuminanceThresholdFilter extends BasicFilter {
 				+"   float luminance = dot(color.rgb, luminanceWeighting);\n"
 		  		+"   gl_FragColor = vec4(vec3(step("+UNIFORM_THRESHOLD+", luminance)), color.a);\n"
 		  		+"}\n";	
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		thresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_THRESHOLD);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(thresholdHandle, threshold);
 	}
 }

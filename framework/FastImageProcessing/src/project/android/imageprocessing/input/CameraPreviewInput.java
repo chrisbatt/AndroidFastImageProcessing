@@ -19,7 +19,8 @@ import android.util.Log;
 /**
  * A Camera input extension of CameraPreviewInput.  
  * This class takes advantage of the android camera preview to produce new textures for processing. <p>
- * Note: This class requires an API level of at least 14.
+ * Note: This class requires an API level of at least 14.  To change camera parameters or get access to the
+ * camera directly before it is used by this class, createCamera() can be override.
  * @author Chris Batt
  */
 @TargetApi(value = 14)
@@ -43,12 +44,79 @@ public class CameraPreviewInput extends GLTextureOutputRenderer implements OnFra
 		this.view = view;
 	}
 
-	private void setRenderSizeToCameraSize() {
-		Parameters params = camera.getParameters();
-		Size previewSize = params.getPreviewSize();
-		setRenderSize(previewSize.width, previewSize.height);
+	private void bindTexture() {
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+	    GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture_in);
 	}
 
+
+	protected Camera createCamera() {
+		return Camera.open();
+	}
+
+	/* (non-Javadoc)
+	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#destroy()
+	 */
+	@Override
+	public void destroy() {
+		super.destroy();
+		if(camera != null) {
+			camera.stopPreview();
+			camera.release();
+			camera = null;
+		}
+		if(camTex != null) {
+			camTex.release();
+			camTex = null;
+		}
+		if(texture_in != 0) {
+			int[] tex = new int[1];
+			tex[0] = texture_in;
+			GLES20.glDeleteTextures(1, tex, 0);
+			texture_in = 0;
+		}
+	}
+
+	@Override
+	protected void drawFrame() {
+		camTex.updateTexImage(); 
+		super.drawFrame();
+	}
+
+	@Override
+	protected String getFragmentShader() {
+		return 
+					 "#extension GL_OES_EGL_image_external : require\n"
+					+"precision mediump float;\n"                         
+					+"uniform samplerExternalOES "+UNIFORM_TEXTURE0+";\n"  
+					+"varying vec2 "+VARYING_TEXCOORD+";\n"
+				
+		 			+ "void main() {\n"
+		 			+ "   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+");\n"
+		 			+ "}\n";
+	}
+
+	@Override
+	protected String getVertexShader() {
+		return 
+					"uniform mat4 "+UNIFORM_CAM_MATRIX+";\n"
+				  + "attribute vec4 "+ATTRIBUTE_POSITION+";\n"
+				  + "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"	
+				  + "varying vec2 "+VARYING_TEXCOORD+";\n"	
+
+				  + "void main() {\n"	
+				  + "   vec4 texPos = "+UNIFORM_CAM_MATRIX+" * vec4("+ATTRIBUTE_TEXCOORD+", 1, 1);\n"
+				  + "   "+VARYING_TEXCOORD+" = texPos.xy;\n"
+				  + "   gl_Position = "+ATTRIBUTE_POSITION+";\n"		                                            			 
+				  + "}\n";		
+	}
+
+
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+        matrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CAM_MATRIX);    
+	}
 
 	@Override
 	protected void initWithGLContext() {
@@ -90,21 +158,35 @@ public class CameraPreviewInput extends GLTextureOutputRenderer implements OnFra
 		}
 	}
 
-	protected Camera createCamera() {
-		return Camera.open();
-	}
-
+	/* (non-Javadoc)
+	 * @see android.graphics.SurfaceTexture.OnFrameAvailableListener#onFrameAvailable(android.graphics.SurfaceTexture)
+	 */
 	@Override
-	protected void drawFrame() {
-		camTex.updateTexImage(); 
-		super.drawFrame();
+	public void onFrameAvailable(SurfaceTexture arg0) {
+		view.requestRender();
 	}
 
-	private void bindTexture() {
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-	    GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, texture_in);
+
+	/**
+	 * Closes and releases the camera for other applications to use.
+	 * Should be called when the pause is called in the activity. 
+	 */
+	public void onPause() {
+		if(camera != null) {
+			camera.stopPreview();
+			camera.release();
+			camera = null;
+		}
 	}
 
+	/**
+	 * Re-initializes the camera and starts the preview again.
+	 * Should be called when resume is called in the activity.
+	 */
+	public void onResume() {
+		reInitialize();
+	}
+	
 	@Override
 	protected void passShaderValues() {
 		renderVertices.position(0);
@@ -120,80 +202,10 @@ public class CameraPreviewInput extends GLTextureOutputRenderer implements OnFra
 	    camTex.getTransformMatrix(matrix);
 		GLES20.glUniformMatrix4fv(matrixHandle, 1, false, matrix, 0);
 	}
-
-
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-        matrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CAM_MATRIX);    
-	}
-
-	@Override
-	protected String getVertexShader() {
-		return 
-					"uniform mat4 "+UNIFORM_CAM_MATRIX+";\n"
-				  + "attribute vec4 "+ATTRIBUTE_POSITION+";\n"
-				  + "attribute vec2 "+ATTRIBUTE_TEXCOORD+";\n"	
-				  + "varying vec2 "+VARYING_TEXCOORD+";\n"	
-
-				  + "void main() {\n"	
-				  + "   vec4 texPos = "+UNIFORM_CAM_MATRIX+" * vec4("+ATTRIBUTE_TEXCOORD+", 1, 1);\n"
-				  + "   "+VARYING_TEXCOORD+" = texPos.xy;\n"
-				  + "   gl_Position = "+ATTRIBUTE_POSITION+";\n"		                                            			 
-				  + "}\n";		
-	}
-
-	@Override
-	protected String getFragmentShader() {
-		return 
-					 "#extension GL_OES_EGL_image_external : require\n"
-					+"precision mediump float;\n"                         
-					+"uniform samplerExternalOES "+UNIFORM_TEXTURE0+";\n"  
-					+"varying vec2 "+VARYING_TEXCOORD+";\n"
-				
-		 			+ "void main() {\n"
-		 			+ "   gl_FragColor = texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+");\n"
-		 			+ "}\n";
-	}
-
-
-	/* (non-Javadoc)
-	 * @see android.graphics.SurfaceTexture.OnFrameAvailableListener#onFrameAvailable(android.graphics.SurfaceTexture)
-	 */
-	@Override
-	public void onFrameAvailable(SurfaceTexture arg0) {
-		view.requestRender();
-	}
-
-	public void onPause() {
-		if(camera != null) {
-			camera.stopPreview();
-			camera.release();
-			camera = null;
-		}
-	}
 	
-	public void onResume() {
-		reInitialize();
-	}
-	
-	@Override
-	public void destroy() {
-		super.destroy();
-		if(camera != null) {
-			camera.stopPreview();
-			camera.release();
-			camera = null;
-		}
-		if(camTex != null) {
-			camTex.release();
-			camTex = null;
-		}
-		if(texture_in != 0) {
-			int[] tex = new int[1];
-			tex[0] = texture_in;
-			GLES20.glDeleteTextures(1, tex, 0);
-			texture_in = 0;
-		}
+	private void setRenderSizeToCameraSize() {
+		Parameters params = camera.getParameters();
+		Size previewSize = params.getPreviewSize();
+		setRenderSize(previewSize.width, previewSize.height);
 	}
 }

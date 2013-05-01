@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a color burn blend of two images
+ * @author Chris Batt
+ */
 public class ColourBurnBlendFilter extends MultiInputFilter {
 	public ColourBurnBlendFilter() {
 		super(2);

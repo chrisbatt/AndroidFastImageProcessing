@@ -17,10 +17,6 @@ import android.opengl.GLSurfaceView;
  * The image can be changed at any time without creating a new GLImageToTextureRenderer by using the setImage(int resourceId) method.
  * @author Chris Batt
  */
-/**
- * @author Chris
- *
- */
 public class ImageResourceInput extends GLTextureOutputRenderer {
 	private Context context;
 	private GLSurfaceView view;
@@ -28,6 +24,16 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 	private int imageWidth;
 	private int imageHeight;
 	private boolean newBitmap;
+	
+	/**
+	 * Creates a GLImageToTextureRenderer using the given bitmap as the image input. 
+	 * @param bitmap
+	 * The bitmap which contains the image.
+	 */
+	public ImageResourceInput(GLSurfaceView view, Bitmap bitmap) {
+		this.view = view;
+		setImage(bitmap);
+	}
 	
 	/**
 	 * Creates a GLImageToTextureRenderer using the given resourceId as the image input. 
@@ -53,45 +59,28 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 		setImage(pathName);
 	}
 	
-	/**
-	 * Creates a GLImageToTextureRenderer using the given bitmap as the image input. 
-	 * @param bitmap
-	 * The bitmap which contains the image.
-	 */
-	public ImageResourceInput(GLSurfaceView view, Bitmap bitmap) {
-		this.view = view;
-		setImage(bitmap);
+	@Override
+	protected void drawFrame() {
+		if(newBitmap) {
+			loadTexture();
+		}
+		super.drawFrame();
 	}
 	
 	/**
-	 * Sets the image being output by this renderer to the image loaded from the given id.
-	 * @param resourceId
-	 * The resource id of the new image to be output by this renderer.
+	 * Returns the height of the current image being output.
+	 * @return image height
 	 */
-	public void setImage(int resourceId) {
-		final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-		loadImage(BitmapFactory.decodeResource(context.getResources(), resourceId, options));
+	public int getImageHeight() {
+		return imageHeight;
 	}
 	
 	/**
-	 * Sets the image being output by this renderer to the image loaded from the given file path.
-	 * @param filePath
-	 * The file path to the image to load.
+	 * Returns the width of the current image being output.
+	 * @return image width
 	 */
-	public void setImage(String filePath) {
-		final BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inScaled = false;
-		loadImage(BitmapFactory.decodeFile(filePath, options));
-	}
-	
-	/**
-	 * Sets the image being output by this renderer to the given bitmap.
-	 * @param bitmap
-	 * The bitmap which contains the image.
-	 */
-	public void setImage(Bitmap bitmap) {
-		loadImage(bitmap);
+	public int getImageWidth() {
+		return imageWidth;
 	}
 	
 	private void loadImage(Bitmap bitmap) {
@@ -140,6 +129,20 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 		view.requestRender();
 	}
 	
+	/* (non-Javadoc)
+	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#destroy()
+	 */
+	@Override
+	public void destroy() {
+		super.destroy();
+		if(texture_in != 0) {
+			int[] tex = new int[1];
+			tex[0] = texture_in;
+			GLES20.glDeleteTextures(1, tex, 0);
+		}
+		newBitmap = true;
+	}
+	
 	private void loadTexture() 	{	
 		if(texture_in != 0) {
 			int[] tex = new int[1];
@@ -151,26 +154,33 @@ public class ImageResourceInput extends GLTextureOutputRenderer {
 	}
 	
 	/**
-	 * Returns the width of the current image being output.
-	 * @return image width
+	 * Sets the image being output by this renderer to the given bitmap.
+	 * @param bitmap
+	 * The bitmap which contains the image.
 	 */
-	public int getImageWidth() {
-		return imageWidth;
+	public void setImage(Bitmap bitmap) {
+		loadImage(bitmap);
 	}
 
 	/**
-	 * Returns the height of the current image being output.
-	 * @return image height
+	 * Sets the image being output by this renderer to the image loaded from the given id.
+	 * @param resourceId
+	 * The resource id of the new image to be output by this renderer.
 	 */
-	public int getImageHeight() {
-		return imageHeight;
+	public void setImage(int resourceId) {
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inScaled = false;
+		loadImage(BitmapFactory.decodeResource(context.getResources(), resourceId, options));
 	}
 	
-	@Override
-	protected void drawFrame() {
-		if(newBitmap) {
-			loadTexture();
-		}
-		super.drawFrame();
+	/**
+	 * Sets the image being output by this renderer to the image loaded from the given file path.
+	 * @param filePath
+	 * The file path to the image to load.
+	 */
+	public void setImage(String filePath) {
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inScaled = false;
+		loadImage(BitmapFactory.decodeFile(filePath, options));
 	}
 }

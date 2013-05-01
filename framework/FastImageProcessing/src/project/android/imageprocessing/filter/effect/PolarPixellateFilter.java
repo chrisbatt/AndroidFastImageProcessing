@@ -4,6 +4,12 @@ import project.android.imageprocessing.filter.BasicFilter;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+/**
+ * Applies a pixellation effect on an image or video in a spiral
+ * fractionalWidthOfAPixel: How large the pixels are, as a fraction of the width and height of the image (0.0 - 1.0)
+ * center: The point that the polar pixellization will begin at and spiral around.
+ * @author Chris Batt
+ */
 public class PolarPixellateFilter extends BasicFilter {
 	private static final String UNIFORM_CENTER = "u_Center";
 	private static final String UNIFORM_FRACTIONAL_SIZE = "u_FractionalSize";
@@ -16,20 +22,6 @@ public class PolarPixellateFilter extends BasicFilter {
 	public PolarPixellateFilter(PointF center, PointF fractionalSize) {
 		this.center = center;
 		this.fractionalSize = fractionalSize;
-	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		fractionalSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_FRACTIONAL_SIZE);
-		centerHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CENTER);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform2f(fractionalSizeHandle, fractionalSize.x, fractionalSize.y);
-		GLES20.glUniform2f(centerHandle, center.x, center.y);
 	}
 	
 	@Override
@@ -55,5 +47,19 @@ public class PolarPixellateFilter extends BasicFilter {
 			    +"  mediump vec2 textureCoordinateToUse = normCoord / 2.0 + 0.5;\n"
 			    +"  gl_FragColor = texture2D("+UNIFORM_TEXTURE0+", textureCoordinateToUse);\n"
 		  		+"}\n";	
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		fractionalSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_FRACTIONAL_SIZE);
+		centerHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CENTER);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform2f(fractionalSizeHandle, fractionalSize.x, fractionalSize.y);
+		GLES20.glUniform2f(centerHandle, center.x, center.y);
 	}
 }

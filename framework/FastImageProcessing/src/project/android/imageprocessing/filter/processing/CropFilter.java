@@ -6,6 +6,12 @@ import java.nio.FloatBuffer;
 
 import project.android.imageprocessing.filter.BasicFilter;
 
+
+/**
+ * This crops an image to a specific region, then passes only that region on to the next stage in the filter
+ * cropRegion: A rectangular area to crop out of the image, normalized to coordinates from 0.0 - 1.0. The (0.0, 0.0) position is in the upper left of the image.
+ * @author Chris Batt
+ */
 public class CropFilter extends BasicFilter {
 	
 	public CropFilter(float minX, float minY, float maxX, float maxY) {

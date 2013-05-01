@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a hard light blend of two images
+ * @author Chris Batt
+ */
 public class HardLightBlendFilter extends MultiInputFilter {
 	public HardLightBlendFilter() {
 		super(2);

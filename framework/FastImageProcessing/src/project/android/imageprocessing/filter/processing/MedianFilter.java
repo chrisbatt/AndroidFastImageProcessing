@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.processing;
 
 import project.android.imageprocessing.filter.MultiPixelRenderer;
 
+/**
+ * Takes the median value of the three color components, over a 3x3 area
+ * @author Chris Batt
+ */
 public class MedianFilter extends MultiPixelRenderer {
 	
 	@Override

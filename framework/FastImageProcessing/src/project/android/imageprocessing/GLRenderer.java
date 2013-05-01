@@ -11,11 +11,11 @@ import android.opengl.GLES20;
  * @author Chris Batt
  */
 public abstract class GLRenderer {
-	protected static final String ATTRIBUTE_POSITION = "a_Position";
-	protected static final String ATTRIBUTE_TEXCOORD = "a_TexCoord";
-	protected static final String VARYING_TEXCOORD = "v_TexCoord";
+	public static final String ATTRIBUTE_POSITION = "a_Position";
+	public static final String ATTRIBUTE_TEXCOORD = "a_TexCoord";
+	public static final String VARYING_TEXCOORD = "v_TexCoord";
 	protected static final String UNIFORM_TEXTUREBASE = "u_Texture";
-	protected static final String UNIFORM_TEXTURE0 = UNIFORM_TEXTUREBASE+0;
+	public static final String UNIFORM_TEXTURE0 = UNIFORM_TEXTUREBASE+0;
 	
 	protected int curRotation;
 	protected FloatBuffer renderVertices;
@@ -214,6 +214,7 @@ public abstract class GLRenderer {
 	public void reInitialize() {
 		initialized = false;
 	}
+	
 	/**
 	 * Draws the given texture using OpenGL and the given vertex and fragment shaders.
 	 * Calling of this method is handled by the {@link FastImageProcessingPipeline} or other filters
@@ -231,6 +232,10 @@ public abstract class GLRenderer {
 		drawFrame();
 	}
 	
+	/**
+	 * Cleans up the opengl objects for this renderer.  Must be called with opengl context.
+	 * Normally called by {@link FastImageProcessingPipeline}.
+	 */
 	public void destroy() {
 		initialized = false;
 		if(programHandle != 0) {
@@ -351,6 +356,17 @@ public abstract class GLRenderer {
 		  		+ "}\n";		
 	}
 	
+	/**
+	 * Sets the background colour for this GLRenderer to the given colour in rgba space.
+	 * @param red
+	 * The red component of the colour.
+	 * @param green
+	 * The green component of the colour.
+	 * @param blue
+	 * The blue component of the colour.
+	 * @param alpha
+	 * The alpha component of the colour.
+	 */
 	public void setBackgroundColour(float red, float green, float blue, float alpha) {
 		this.setBackgroundRed(red);
 		this.setBackgroundGreen(green);
@@ -358,34 +374,74 @@ public abstract class GLRenderer {
 		this.setBackgroundAlpha(alpha);
 	}
 
+	/**
+	 * Returns the red component of the background colour currently set for this GLRenderer.
+	 * @return red
+	 * The red component of the background colour.
+	 */
 	public float getBackgroundRed() {
 		return red;
 	}
 
+	/**
+	 * Sets only the red component of the background colour currently set for this GLRenderer.
+	 * @param red
+	 * The red component to set as the background colour.
+	 */
 	public void setBackgroundRed(float red) {
 		this.red = red;
 	}
 
+	/**
+	 * Returns the green component of the background colour currently set for this GLRenderer.
+	 * @return green
+	 * The green component of the background colour.
+	 */
 	public float getBackgroundGreen() {
 		return green;
 	}
 
+	/**
+	 * Sets only the green component of the background colour currently set for this GLRenderer.
+	 * @param green
+	 * The green component to set as the background colour.
+	 */
 	public void setBackgroundGreen(float green) {
 		this.green = green;
 	}
 
+	/**
+	 * Returns the blue component of the background colour currently set for this GLRenderer.
+	 * @return blue
+	 * The blue component of the background colour.
+	 */
 	public float getBackgroundBlue() {
 		return blue;
 	}
 
+	/**
+	 * Sets only the blue component of the background colour currently set for this GLRenderer.
+	 * @param blue
+	 * The blue component to set as the background colour.
+	 */
 	public void setBackgroundBlue(float blue) {
 		this.blue = blue;
 	}
 
+	/**
+	 * Returns the alpha component of the background colour currently set for this GLRenderer.
+	 * @return alpha
+	 * The alpha component of the background colour.
+	 */
 	public float getBackgroundAlpha() {
 		return alpha;
 	}
 
+	/**
+	 * Sets only the alpha component of the background colour currently set for this GLRenderer.
+	 * @param alpha
+	 * The alpha component to set as the background colour.
+	 */
 	public void setBackgroundAlpha(float alpha) {
 		this.alpha = alpha;
 	}

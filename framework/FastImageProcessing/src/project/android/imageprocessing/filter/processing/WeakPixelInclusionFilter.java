@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.processing;
 
 import project.android.imageprocessing.filter.MultiPixelRenderer;
 
+/**
+ * Currently only used as part of the CannyEdgeDetectionFilter
+ * @author Chris Batt
+ */
 public class WeakPixelInclusionFilter extends MultiPixelRenderer {
 	@Override
 	protected String getFragmentShader() {

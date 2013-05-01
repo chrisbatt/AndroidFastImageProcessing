@@ -1,5 +1,11 @@
 package project.android.imageprocessing.filter.effect;
 
+/**
+ * Applies a halftone effect to an image, like news print
+ * fractionalWidthOfAPixel: How large the halftone dots are, as a fraction of the width and height of the image (0.0 - 1.0)
+ * aspectRatio: the ratio of width and height for dots
+ * @author Chris Batt
+ */
 public class HalftoneFilter extends PixellateFilter {
 	public HalftoneFilter(float fractionalWidth, float aspectRatio) {
 		super(fractionalWidth, aspectRatio);

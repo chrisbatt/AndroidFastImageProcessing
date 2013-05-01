@@ -4,6 +4,12 @@ import project.android.imageprocessing.filter.CompositeFilter;
 import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import android.opengl.GLES20;
 
+/**
+ * Applies an unsharp mask
+ * blurSize: A multiplier for the underlying blur size, ranging from 0.0 on up
+ * intensity: The strength of the sharpening, from 0.0 on up
+ * @author Chris Batt
+ */
 public class UnsharpMaskFilter extends CompositeFilter {
 	private static final String UNIFORM_INTENSITY = "u_Intensity";
 
@@ -24,29 +30,6 @@ public class UnsharpMaskFilter extends CompositeFilter {
 	}
 		
 	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		intensityHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INTENSITY);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(intensityHandle, intensity);
-	} 
-	
-	@Override
-	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
-		if(filterLocations.size() < 2 || !filterLocations.contains(source)) {
-			clearRegisteredFilterLocations();
-			registerFilterLocation(source, 0);
-			registerFilterLocation(blur, 1);
-			registerInputOutputFilter(source);
-		}
-		super.newTextureReady(texture, source);
-	}
-	
-	@Override
 	protected String getFragmentShader() {
 		return
 				 "precision mediump float;\n" 
@@ -61,5 +44,28 @@ public class UnsharpMaskFilter extends CompositeFilter {
 				+"   vec4 blurredImageColor = texture2D("+UNIFORM_TEXTUREBASE+1+", "+VARYING_TEXCOORD+");\n"
 		  		+"   gl_FragColor = vec4(mix(sharpImageColor.rgb, blurredImageColor.rgb, "+UNIFORM_INTENSITY+"), sharpImageColor.a);\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		intensityHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INTENSITY);
+	} 
+	
+	@Override
+	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
+		if(filterLocations.size() < 2 || !filterLocations.contains(source)) {
+			clearRegisteredFilterLocations();
+			registerFilterLocation(source, 0);
+			registerFilterLocation(blur, 1);
+			registerInputOutputFilter(source);
+		}
+		super.newTextureReady(texture, source);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(intensityHandle, intensity);
 	}
 }

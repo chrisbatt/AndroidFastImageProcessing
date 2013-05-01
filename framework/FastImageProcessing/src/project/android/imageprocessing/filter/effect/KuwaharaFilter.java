@@ -2,6 +2,12 @@ package project.android.imageprocessing.filter.effect;
 
 import project.android.imageprocessing.filter.BasicFilter;
 
+/**
+ * Kuwahara image abstraction, drawn from the work of Kyprianidis, et. al. in their publication "Anisotropic Kuwahara Filtering on the GPU" within the GPU Pro collection. This produces an oil-painting-like image, but it is extremely computationally expensive, so it can take seconds to render a frame on an iPad 2. This might be best used for still images.
+ * radius: In integer specifying the number of pixels out from the center pixel to test when applying the filter. A higher value creates a more abstracted image, but at the cost of much greater processing time.
+ * This may not work on some devices.  Use {@link KuwaharaRadius3Filter} if it does not.
+ * @author Chris Batt
+ */
 public class KuwaharaFilter extends BasicFilter {
 	protected static final String UNIFORM_RADIUS = "u_Radius";
 	

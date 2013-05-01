@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.effect;
 
 import project.android.imageprocessing.filter.BasicFilter;
 
+/**
+ * Simulates the colorspace of a CGA monitor
+ * @author Chris Batt
+ */
 public class CGAColourSpaceFilter extends BasicFilter {
 
 	@Override

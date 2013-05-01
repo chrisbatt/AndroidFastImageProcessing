@@ -13,7 +13,21 @@ import android.opengl.GLES20;
  * By itself, this class is not useful because it's fragment shader only uses one texture. 
  * To take advantage of the multiple texture inputs, the getFragmentShader() method should be
  * override to return a more useful fragment shader.  This class supports a maximum of 10
- * input textures.
+ * input textures. However, only one set of texture coordinates is used so any rotation done in 
+ * this filter will be applied to all input images.
+ * 
+ * The position of the input textures should be registered before the filter attempts to draw.
+ * For example, if this class was extended with a fragment shader that required a grey scale filter as the first input
+ * texture and a blur filter as the second input, it would be set up as follows: 
+ * <code>
+ * 	GreyScaleFilter grey = new GreyScaleFilter();
+ *  FastBlurFilter blur = new FastBlurFilter();
+ *  SomeMultiInputFilter multiInput = new SomeMultiInputFilter();
+ *  grey.addTarget(multiInput);
+ *  blur.addTarget(multiInput);
+ *  multiInput.registerFilterLocation(grey, 0);
+ *  multiInput.registerFilterLocation(blur, 1);
+ * </code>
  * @author Chris Batt
  */
 public abstract class MultiInputFilter extends BasicFilter {
@@ -28,8 +42,7 @@ public abstract class MultiInputFilter extends BasicFilter {
 	 * set number of textures which can be used by this filter.
 	 * @param numOfInputs
 	 * The number of inputs of this filter.  For example, if the fragment shader of this filter 
-	 * requires three input textures, then this would be set to three; however, this does not mean 
-	 * that there can only be three initial filters.
+	 * requires three input textures, then this would be set to three.
 	 */
 	public MultiInputFilter(int numOfInputs) {
 		super();
@@ -38,6 +51,44 @@ public abstract class MultiInputFilter extends BasicFilter {
 		texture = new int[numOfInputs-1];
 		texturesReceived = new ArrayList<GLTextureOutputRenderer>(numOfInputs);
 		filterLocations = new ArrayList<GLTextureOutputRenderer>(numOfInputs);
+	}
+	
+	/**
+	 * Removes all currently registered filters from filter location list.  
+	 */
+	public void clearRegisteredFilterLocations() {
+		filterLocations.clear();
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		for(int i = 0; i < numOfInputs-1; i++) {
+			textureHandle[i] = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTUREBASE+(i+1));
+		}
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see project.android.imageprocessing.filter.BasicFilter#newTextureReady(int, project.android.imageprocessing.input.GLTextureOutputRenderer)
+	 */
+	@Override
+	public synchronized void newTextureReady(int texture, GLTextureOutputRenderer source) {
+		if(!texturesReceived.contains(source)) {
+			texturesReceived.add(source);
+		}
+		int pos = filterLocations.lastIndexOf(source);
+		if(pos == 0) {
+			texture_in = texture;
+		} else {
+			this.texture[pos-1] = texture;
+		}
+		if(texturesReceived.size() == numOfInputs) {
+			setWidth(source.getWidth());
+			setHeight(source.getHeight());
+			onDrawFrame();
+			texturesReceived.clear();
+		}		
 	}
 	
 	@Override
@@ -62,20 +113,15 @@ public abstract class MultiInputFilter extends BasicFilter {
 		}
 	}
 	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		for(int i = 0; i < numOfInputs-1; i++) {
-			textureHandle[i] = GLES20.glGetUniformLocation(programHandle, UNIFORM_TEXTUREBASE+(i+1));
-		}
-	}
-	
-	
 	/**
-	 * Removes all currently registered filters from filter location list.  
+	 * Registers the given filter in the next available texture location.
+	 * @param filter
+	 * An output filter which passes its output to this filter.
 	 */
-	public void clearRegisteredFilterLocations() {
-		filterLocations.clear();
+	public void registerFilterLocation(GLTextureOutputRenderer filter) {
+		if(!filterLocations.contains(filter)) {
+			filterLocations.add(filter);
+		}
 	}
 	
 	/**
@@ -90,38 +136,5 @@ public abstract class MultiInputFilter extends BasicFilter {
 			filterLocations.remove(filter);
 		}
 		filterLocations.add(location, filter);
-	}
-	
-	/**
-	 * Registers the given filter in the next available texture location.
-	 * @param filter
-	 * An output filter which passes its output to this filter.
-	 */
-	public void registerFilterLocation(GLTextureOutputRenderer filter) {
-		if(!filterLocations.contains(filter)) {
-			filterLocations.add(filter);
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see project.android.imageprocessing.filter.BasicFilter#newTextureReady(int, project.android.imageprocessing.input.GLTextureOutputRenderer)
-	 */
-	@Override
-	public synchronized void newTextureReady(int texture, GLTextureOutputRenderer source) {
-		if(!texturesReceived.contains(source)) {
-			texturesReceived.add(source);
-		}
-		int pos = filterLocations.lastIndexOf(source);
-		if(pos == 0) {
-			texture_in = texture;
-		} else {
-			this.texture[pos-1] = texture;
-		}
-		if(texturesReceived.size() == numOfInputs) {
-			setWidth(source.getWidth());
-			setHeight(source.getHeight());
-			onDrawFrame();
-			texturesReceived.clear();
-		}		
 	}
 }

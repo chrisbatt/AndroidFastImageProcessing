@@ -2,6 +2,13 @@ package project.android.imageprocessing.filter.effect;
 
 import android.graphics.PointF;
 
+/**
+ *Simulates the refraction through a solid glass sphere
+ *center: The center about which to apply the distortion
+ *radius: The radius of the distortion, ranging from 0.0 to 1.0
+ *refractiveIndex: The index of refraction for the sphere
+ * @author Chris Batt
+ */
 public class SphereRefractionFilter extends BulgeDistortionFilter {
 	
 	public SphereRefractionFilter(PointF center, float radius, float refractiveIndex, float aspectRatio) {

@@ -11,15 +11,15 @@ import android.opengl.GLSurfaceView;
  * Add FastImageProcessingView to activity layout. <p>
  * Add FastImageProcessingPipeline to FastImageProcessingView <p>
  * Create a input point and attach filter chains to the input and attach endpoints to the filter chains using addTarget. <p>
- * <code>	image = new GLImageToTextureRenderer(this, R.drawable.tiger); <p>
+ * <code>	image = new ImageResourceInput(view, this, R.drawable.picture); <p>
  *			filter = new GreyScaleFilter(); <p>
- *			screen = new GLTextureToScreenRenderer(pipeline, true); <p>
+ *			screen = new ScreenEndpoint(pipeline); <p>
  *			image.addTarget(filter); <p>
  *			filter.addTarget(screen); <p>
  * </code><p>
  * Pass the input point into the FastImageProcessingPipeline as the root renderer and start the pipeline. <p>
  * <code>	
-		pipeline.setRootRenderer(image); <p>
+		pipeline.addRootRenderer(image); <p>
 		pipeline.startRendering(); <p>
  * </code><p>
  * @author Chris Batt

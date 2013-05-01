@@ -2,6 +2,13 @@ package project.android.imageprocessing.filter.effect;
 
 import android.graphics.PointF;
 
+/**
+ * Creates a pinch distortion of the image
+ * radius: The radius from the center to apply the distortion
+ * center: The center of the image (in normalized coordinates from 0 - 1.0) about which to distort)
+ * scale: The amount of distortion to apply, from -2.0 to 2.0
+ * @author Chris Batt
+ */
 public class PinchDistortionFilter extends BulgeDistortionFilter {
 	public PinchDistortionFilter(PointF center, float radius, float distortionAmount, float aspectRatio) {
 		super(center, radius, distortionAmount, aspectRatio);

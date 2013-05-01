@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ *  Applies a color blend of two images
+ * @author Chris Batt
+ */
 public class ColourBlendFilter extends MultiInputFilter {
 	public ColourBlendFilter() {
 		super(2);

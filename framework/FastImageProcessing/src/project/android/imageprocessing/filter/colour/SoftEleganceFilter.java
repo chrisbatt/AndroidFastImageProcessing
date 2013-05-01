@@ -6,6 +6,10 @@ import project.android.imageprocessing.filter.blend.AlphaBlendFilter;
 import project.android.imageprocessing.filter.processing.GaussianBlurFilter;
 import android.content.Context;
 
+/**
+ * Another lookup-based color remapping filter.
+ * @author Chris Batt
+ */
 public class SoftEleganceFilter extends GroupFilter {
 
 	public SoftEleganceFilter(Context context) {

@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a multiply blend of two images
+ * @author Chris Batt
+ */
 public class MultiplyBlendFilter extends MultiInputFilter {
 	public MultiplyBlendFilter() {
 		super(2);

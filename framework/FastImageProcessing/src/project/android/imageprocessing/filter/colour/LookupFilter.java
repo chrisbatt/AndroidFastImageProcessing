@@ -8,6 +8,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 
+/**
+ * Uses an RGB color lookup image to remap the colors in an image. First, use your favourite photo editing application to apply a filter to lookup.png from AndroidFastImageProcessing/res/drawable. For this to work properly each pixel color must not depend on other pixels (e.g. blur will not work). If you need a more complex filter you can create as many lookup tables as required. Once ready, use your new lookup.png file as the resource input for LookupFilter.
+ * @author Chris Batt
+ */
 public class LookupFilter extends MultiInputFilter {
 	private int lookup_texture;
 	private Bitmap lookupBitmap;
@@ -20,21 +24,6 @@ public class LookupFilter extends MultiInputFilter {
 	}
 	
 	@Override
-	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
-		if(filterLocations.size() < 2 || !source.equals(filterLocations.get(0))) {
-			clearRegisteredFilterLocations();
-			registerFilterLocation(source, 0);
-			registerFilterLocation(this, 1);
-		}
-		if(lookup_texture == 0) {
-			lookup_texture = ImageHelper.bitmapToTexture(lookupBitmap);
-		}
-		super.newTextureReady(lookup_texture, this);
-		super.newTextureReady(texture, source);
-	}
-	
-	
-	@Override
 	public void destroy() {
 		super.destroy();
 		if(lookup_texture != 0) {
@@ -44,6 +33,7 @@ public class LookupFilter extends MultiInputFilter {
 			lookup_texture = 0;
 		}
 	}
+	
 	
 	@Override
 	protected String getFragmentShader() {
@@ -73,5 +63,19 @@ public class LookupFilter extends MultiInputFilter {
 		  		+ "  vec4 newColor = mix(newColor1, newColor2, fract(blueColor));\n"
 		  		+ "  gl_FragColor = vec4(newColor.rgb, texColour.a);\n"
 		  		+ "}\n";		
+	}
+	
+	@Override
+	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
+		if(filterLocations.size() < 2 || !source.equals(filterLocations.get(0))) {
+			clearRegisteredFilterLocations();
+			registerFilterLocation(source, 0);
+			registerFilterLocation(this, 1);
+		}
+		if(lookup_texture == 0) {
+			lookup_texture = ImageHelper.bitmapToTexture(lookupBitmap);
+		}
+		super.newTextureReady(lookup_texture, this);
+		super.newTextureReady(texture, source);
 	}
 }

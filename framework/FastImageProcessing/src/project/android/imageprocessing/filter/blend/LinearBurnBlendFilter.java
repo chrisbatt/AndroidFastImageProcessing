@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a linear burn blend of two images
+ * @author Chris Batt
+ */
 public class LinearBurnBlendFilter extends MultiInputFilter {
 	public LinearBurnBlendFilter() {
 		super(2);

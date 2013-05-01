@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.effect;
 
 import project.android.imageprocessing.filter.processing.ThresholdEdgeDetectionFilter;
 
+/**
+ * Same as the sketch filter, only the edges are thresholded instead of being grayscale
+ * @author Chris Batt
+ */
 public class ThresholdSketchFilter extends ThresholdEdgeDetectionFilter {
 		
 	public ThresholdSketchFilter(float threshold) {

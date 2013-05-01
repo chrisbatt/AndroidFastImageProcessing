@@ -4,6 +4,12 @@ import project.android.imageprocessing.filter.BasicFilter;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+/**
+ * Applies a motion blur around a point
+ * blurSize: A multiplier for the blur size, ranging from 0.0 on up
+ * blurCenter: The normalized center of the blur.
+ * @author Chris Batt
+ */
 public class ZoomBlurFilter extends BasicFilter {
 	private static final String UNIFORM_BLUR_SIZE = "u_BlurSize";
 	private static final String UNIFORM_BLUR_LOCATION = "u_BlurLocation";
@@ -17,20 +23,6 @@ public class ZoomBlurFilter extends BasicFilter {
 		this.blurSize = blurSize;
 		this.blurLocation = blurLocation;
 	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		blurSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BLUR_SIZE);
-		blurLocationHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BLUR_LOCATION);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(blurSizeHandle, blurSize);
-		GLES20.glUniform2f(blurLocationHandle, blurLocation.x, blurLocation.y);
-	} 
 	
 	@Override
 	protected String getFragmentShader() {
@@ -56,5 +48,19 @@ public class ZoomBlurFilter extends BasicFilter {
 		  		+"   fragColour += texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+" -  (4.0 * samplingOffset)) * 0.05;\n"
 		  		+"   gl_FragColor = fragColour;\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		blurSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BLUR_SIZE);
+		blurLocationHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BLUR_LOCATION);
+	} 
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(blurSizeHandle, blurSize);
+		GLES20.glUniform2f(blurLocationHandle, blurLocation.x, blurLocation.y);
 	}
 }

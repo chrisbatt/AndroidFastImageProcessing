@@ -4,6 +4,11 @@ import project.android.imageprocessing.filter.CompositeMultiPixelFilter;
 import project.android.imageprocessing.filter.colour.GreyScaleFilter;
 import android.opengl.GLES20;
 
+/**
+ * Performs Sobel edge detection, but applies a threshold instead of giving gradual strength value
+ * threshold: Any edge above this threshold will be black, and anything below white. Ranges from 0.0 to 1.0
+ * @author Chris Batt
+ */
 public class ThresholdEdgeDetectionFilter extends CompositeMultiPixelFilter {
 	protected static final String UNIFORM_THRESHOLD = "u_Threshold";
 	
@@ -23,18 +28,6 @@ public class ThresholdEdgeDetectionFilter extends CompositeMultiPixelFilter {
 		registerFilterLocation(grey);
 	}
 		
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		thresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_THRESHOLD);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(thresholdHandle, threshold);
-	}
-	
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -65,5 +58,17 @@ public class ThresholdEdgeDetectionFilter extends CompositeMultiPixelFilter {
 			     
 			    +"   gl_FragColor = vec4(vec3(mag), 1.0);\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		thresholdHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_THRESHOLD);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(thresholdHandle, threshold);
 	}
 }

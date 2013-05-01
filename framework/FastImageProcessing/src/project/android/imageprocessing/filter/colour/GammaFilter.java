@@ -25,18 +25,6 @@ public class GammaFilter extends BasicFilter {
 	}
 	
 	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		gammaHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_GAMMA);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(gammaHandle, gamma);
-	} 
-	
-	@Override
 	protected String getFragmentShader() {
 		return 
 				 "precision mediump float;\n" 
@@ -48,5 +36,17 @@ public class GammaFilter extends BasicFilter {
 		  		+"   vec4 color = texture2D("+UNIFORM_TEXTURE0+","+VARYING_TEXCOORD+");\n"
 				+"   gl_FragColor = vec4(pow(color.rgb, vec3("+UNIFORM_GAMMA+")), color.a);\n"
 				+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		gammaHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_GAMMA);
+	} 
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(gammaHandle, gamma);
 	}
 }

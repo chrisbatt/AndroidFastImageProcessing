@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.effect;
 
 import project.android.imageprocessing.filter.processing.SobelEdgeDetectionFilter;
 
+/**
+ * Converts video to look like a sketch. This is just the Sobel edge detection filter with the colors inverted
+ * @author Chris Batt
+ */
 public class SketchFilter extends SobelEdgeDetectionFilter {
 	@Override
 	protected String getFragmentShader() {

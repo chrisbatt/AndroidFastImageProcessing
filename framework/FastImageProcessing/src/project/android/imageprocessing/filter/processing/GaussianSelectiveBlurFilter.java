@@ -2,6 +2,15 @@ package project.android.imageprocessing.filter.processing;
 
 import android.graphics.PointF;
 
+/**
+ * A Gaussian blur that preserves focus within a circular region
+ * blurSize: A multiplier for the size of the blur, ranging from 0.0 on up
+ * excludeCircleRadius: The radius of the circular area being excluded from the blur
+ * excludeCirclePoint: The center of the circular area being excluded from the blur
+ * excludeBlurSize: The size of the area between the blurred portion and the clear circle
+ * aspectRatio: The aspect ratio of the image, used to adjust the circularity of the in-focus region.
+ * @author Chris Batt
+ */
 public class GaussianSelectiveBlurFilter extends GaussianBlurPositionFilter {
 		
 	public GaussianSelectiveBlurFilter(float blurSize, float aspectRatio, PointF excludedCirclePoint, float excludedCircleRadius, float excludedBlurSize) {

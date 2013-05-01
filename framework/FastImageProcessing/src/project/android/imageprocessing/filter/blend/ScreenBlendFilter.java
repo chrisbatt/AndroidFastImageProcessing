@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a saturation blend of two images
+ * @author Chris Batt
+ */
 public class ScreenBlendFilter extends MultiInputFilter {
 	public ScreenBlendFilter() {
 		super(2);

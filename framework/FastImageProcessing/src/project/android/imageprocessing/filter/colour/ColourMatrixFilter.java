@@ -39,20 +39,6 @@ public class ColourMatrixFilter extends BasicFilter {
 	}
 	
 	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		colorMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_COLORMATRIX);
-		intensityHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INTENSITY);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniformMatrix4fv(colorMatrixHandle, 1, false, colorMatrix, 0);
-		GLES20.glUniform1f(intensityHandle, intensity);
-	} 
-	
-	@Override
 	protected String getFragmentShader() {
 		return 
 				 "precision mediump float;\n" 
@@ -67,5 +53,19 @@ public class ColourMatrixFilter extends BasicFilter {
 		  		+"   vec4 colorResult = "+UNIFORM_INTENSITY+" * matrixResult + (1.0 - "+UNIFORM_INTENSITY+") * color;\n"
 		  		+"   gl_FragColor = vec4(colorResult.rgb, color.a);\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		colorMatrixHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_COLORMATRIX);
+		intensityHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_INTENSITY);
+	} 
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniformMatrix4fv(colorMatrixHandle, 1, false, colorMatrix, 0);
+		GLES20.glUniform1f(intensityHandle, intensity);
 	}
 }

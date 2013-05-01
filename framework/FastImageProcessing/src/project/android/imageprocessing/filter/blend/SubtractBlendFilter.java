@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ *  Applies a subtract blend of two images
+ * @author Chris Batt
+ */
 public class SubtractBlendFilter extends MultiInputFilter {
 	public SubtractBlendFilter() {
 		super(2);

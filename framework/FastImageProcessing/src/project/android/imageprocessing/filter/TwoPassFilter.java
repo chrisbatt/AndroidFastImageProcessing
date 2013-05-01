@@ -2,6 +2,13 @@ package project.android.imageprocessing.filter;
 
 import android.opengl.GLES20;
 
+/**
+ * An extension of BasicFilter. This class allows for a filter program to be applied twice to a given input.
+ * The same fragment and vertex shaders will be used for both of the passes. Also the same values will be passed
+ * for both passes unless specifically changed.  To check which pass is currently being run during passShaderValues(),
+ * getCurrentPass() can be called.  The current pass will either be 1 or 2.
+ * @author Chris Batt
+ */
 public class TwoPassFilter extends BasicFilter {
 	private int[] firstPassFrameBuffer;
 	private int[] firstPassTextureOut;
@@ -9,8 +16,24 @@ public class TwoPassFilter extends BasicFilter {
 	
 	private int currentPass;
 	
-	protected int getCurrentPass() {
-		return currentPass;
+	/* (non-Javadoc)
+	 * @see project.android.imageprocessing.input.GLTextureOutputRenderer#destroy()
+	 */
+	@Override
+	public void destroy() {
+		super.destroy();
+		if(firstPassFrameBuffer != null) {
+			GLES20.glDeleteFramebuffers(1, firstPassFrameBuffer, 0);
+			firstPassFrameBuffer = null;
+		}
+		if(firstPassTextureOut != null) {
+			GLES20.glDeleteTextures(1, firstPassTextureOut, 0);
+			firstPassTextureOut = null;
+		}
+		if(firstPassDepthRenderBuffer != null) {
+			GLES20.glDeleteRenderbuffers(1, firstPassDepthRenderBuffer, 0);
+			firstPassDepthRenderBuffer = null;
+		}
 	}
 	
 	
@@ -47,6 +70,10 @@ public class TwoPassFilter extends BasicFilter {
 		
 		currentPass = 2;
 		super.drawFrame();
+	}
+	
+	protected int getCurrentPass() {
+		return currentPass;
 	}
 	
 	private void initFBO() {
@@ -87,23 +114,6 @@ public class TwoPassFilter extends BasicFilter {
 		int status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER);
 		if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
 			throw new RuntimeException(this+": Failed to set up render buffer with status "+status+" and error "+GLES20.glGetError());
-		}
-	}
-	
-	@Override
-	public void destroy() {
-		super.destroy();
-		if(firstPassFrameBuffer != null) {
-			GLES20.glDeleteFramebuffers(1, firstPassFrameBuffer, 0);
-			firstPassFrameBuffer = null;
-		}
-		if(firstPassTextureOut != null) {
-			GLES20.glDeleteTextures(1, firstPassTextureOut, 0);
-			firstPassTextureOut = null;
-		}
-		if(firstPassDepthRenderBuffer != null) {
-			GLES20.glDeleteRenderbuffers(1, firstPassDepthRenderBuffer, 0);
-			firstPassDepthRenderBuffer = null;
 		}
 	}
 }

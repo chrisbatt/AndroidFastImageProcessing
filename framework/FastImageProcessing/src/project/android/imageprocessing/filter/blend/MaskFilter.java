@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a mask blend of two images.  The luminance of the second image determines the alpha of the first.
+ * @author Chris Batt
+ */
 public class MaskFilter extends MultiInputFilter {
 	public MaskFilter() {
 		super(2);

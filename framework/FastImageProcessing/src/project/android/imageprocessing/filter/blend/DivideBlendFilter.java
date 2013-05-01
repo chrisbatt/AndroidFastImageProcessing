@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.blend;
 
 import project.android.imageprocessing.filter.MultiInputFilter;
 
+/**
+ * Applies a division blend of two images
+ * @author Chris Batt
+ */
 public class DivideBlendFilter extends MultiInputFilter {
 	public DivideBlendFilter() {
 		super(2);

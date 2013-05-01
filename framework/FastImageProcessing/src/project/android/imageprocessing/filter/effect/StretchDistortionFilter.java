@@ -4,6 +4,11 @@ import project.android.imageprocessing.filter.BasicFilter;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+/**
+ * Creates a stretch distortion of the image
+ * center: The center of the image (in normalized coordinates from 0 - 1.0) about which to distort
+ * @author Chris Batt
+ */
 public class StretchDistortionFilter extends BasicFilter {
 	protected static final String UNIFORM_CENTER = "u_Center";
 	
@@ -14,18 +19,6 @@ public class StretchDistortionFilter extends BasicFilter {
 		this.center = center;
 	}
 		
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		centerHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CENTER);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform2f(centerHandle, center.x, center.y);
-	}
-	
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -47,5 +40,17 @@ public class StretchDistortionFilter extends BasicFilter {
 			    +"	mediump vec2 textureCoordinateToUse = normCoord / 2.0 + 0.5;\n"
 			    +"	gl_FragColor = texture2D("+UNIFORM_TEXTURE0+", textureCoordinateToUse );\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		centerHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_CENTER);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform2f(centerHandle, center.x, center.y);
 	}
 }

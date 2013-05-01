@@ -10,10 +10,13 @@ import android.opengl.GLSurfaceView.Renderer;
 
 
 /**
- * Filter pipeline renderer implementation of the GLSurfaceView.Renderer.  Implements all of the rendering implementations.
- * In addition to the GLSurfaceView.Renderer methods, this class provides methods for processing the given graph of filters.
- * This graph of filters can be set by creating the filter graph and then passing the root of the graph to this class using
- * setRootRenderer(GLRenderer rootRenderer).
+ * Filter pipeline renderer implementation of the GLSurfaceView.Renderer.  In addition to the GLSurfaceView.Renderer methods, 
+ * this class provides methods for processing the given graph of filters.  This graph of filters can be set by creating one 
+ * or more filter graphs and then passing the root of the graphs to this class using addRootRenderer(GLRenderer rootRenderer).
+ * This class will not start processing the filters until startRendering() has been called.  Once it has started rendering, 
+ * the filter graph should not be changed without first calling pauseRendering().  Although this is theoretically not required,
+ * it is recommended.  If a filter is removed from the processing pipeline, addFilterToDestroy(GLRenderer filter) should be called
+ * to clean up opengl memory.
  * @author Chris Batt
  */
 public class FastImageProcessingPipeline implements Renderer {
@@ -34,7 +37,19 @@ public class FastImageProcessingPipeline implements Renderer {
 	}
 	
 	/**
-	 * Adds the root node of graph of filters that the pipeline will process and draw to the given endpoints of the graph.
+	 * Adds a given filter to the list of filters to have its resources removed next time this pipeline 
+	 * receives an opengl context.  The filter will still be usable and will recreate all of the destroyed
+	 * opengl objects next time it is used in the pipeline.
+	 * @param renderer
+	 */
+	public void addFilterToDestroy(GLRenderer renderer) {
+		synchronized(filtersToDestroy) {
+			filtersToDestroy.add(renderer);
+		}
+	}
+	
+	/**
+	 * Adds a root node of graph of filters that the pipeline will process and draw to the given endpoints of the graph.
 	 * @param rootRenderer 
 	 * A root node (input node) of the graph of filters and endpoints.
 	 */
@@ -42,14 +57,39 @@ public class FastImageProcessingPipeline implements Renderer {
 		rootRenderers.add(rootRenderer);
 	}
 
+	/**
+	 * Returns the height of GLSurfaceView on the screen.
+	 * @return height
+	 */
+	public int getHeight() {
+		return height;
+	}
+	
+	/**
+	 * Returns the width of GLSurfaceView on the screen.
+	 * @return width
+	 */
+	public int getWidth() {
+		return width;
+	}
+	
+	private synchronized boolean isRendering() {
+		return rendering;
+	}
+	
 	/* (non-Javadoc)
 	 * @see android.opengl.GLSurfaceView.Renderer#onDrawFrame(javax.microedition.khronos.opengles.GL10)
 	 */
 	@Override
 	public void onDrawFrame(GL10 unused) {
 		if(isRendering()) {
-			for(GLRenderer rootRenderer : rootRenderers) {
+			for(int i = 0; i < rootRenderers.size(); i++) {
+				GLRenderer rootRenderer;
+				synchronized(this) {
+					rootRenderer = rootRenderers.get(i);
+				}
 				rootRenderer.onDrawFrame();
+				
 			}
 		}
 		synchronized(filtersToDestroy) {
@@ -60,34 +100,6 @@ public class FastImageProcessingPipeline implements Renderer {
 		}
 	}
 	
-	public void addFilterToDestroy(GLRenderer renderer) {
-		synchronized(filtersToDestroy) {
-			filtersToDestroy.add(renderer);
-		}
-	}
-	
-	/**
-	 * Pauses the rendering of the graph. This method should be called before the alteration of the filter graph; however,
-	 * altering the filter graph without pauses should still work.
-	 */
-	public synchronized void pauseRendering() {
-		rendering = false;
-	}
-	
-	private synchronized boolean isRendering() {
-		return rendering;
-	}
-	
-	/**
-	 * Starts the rendering of the graph. If this is called before a root node renderer has been
-	 * added, it will do nothing.
-	 */
-	public synchronized void startRendering() {
-		if(rootRenderers.size() != 0) {
-			rendering = true;
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see android.opengl.GLSurfaceView.Renderer#onSurfaceChanged(javax.microedition.khronos.opengles.GL10, int, int)
 	 */
@@ -107,18 +119,29 @@ public class FastImageProcessingPipeline implements Renderer {
 	}
 
 	/**
-	 * Returns the width of GLSurfaceView on the screen.
-	 * @return width
+	 * Pauses the rendering of the graph. This method should be called before the alteration of the filter graph; however,
+	 * altering the filter graph without pauses should still work.
 	 */
-	public int getWidth() {
-		return width;
+	public synchronized void pauseRendering() {
+		rendering = false;
+	}
+
+	/**
+	 * Removes a root node of graph of filters that the pipeline will process and draw to the given endpoints of the graph.
+	 * @param rootRenderer 
+	 * A root node (input node) of the graph of filters and endpoints.
+	 */
+	public synchronized void removeRootRenderer(GLRenderer rootRenderer) {
+		rootRenderers.remove(rootRenderer);
 	}
 	
 	/**
-	 * Returns the height of GLSurfaceView on the screen.
-	 * @return height
+	 * Starts the rendering of the graph. If this is called before a root node renderer has been
+	 * added, it will do nothing.
 	 */
-	public int getHeight() {
-		return height;
+	public synchronized void startRendering() {
+		if(rootRenderers.size() != 0) {
+			rendering = true;
+		}
 	}
 }

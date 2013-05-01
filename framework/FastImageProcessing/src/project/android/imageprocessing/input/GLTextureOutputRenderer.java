@@ -29,9 +29,35 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 		targets = new ArrayList<GLTextureInputRenderer>();
 	}
 	
+	/**
+	 * Adds the given target to the list of targets that this renderer sends its output to.
+	 * @param target
+	 * The target which should be added to the list of targets that this renderer sends its output to.
+	 */
+	public synchronized void addTarget(GLTextureInputRenderer target) {
+		synchronized(listLock) {
+			targets.add(target);
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see project.android.imageprocessing.GLRenderer#destroy()
+	 */
 	@Override
-	protected void handleSizeChange() {
-		initFBO();
+	public void destroy() {
+		super.destroy();
+		if(frameBuffer != null) {
+			GLES20.glDeleteFramebuffers(1, frameBuffer, 0);
+			frameBuffer = null;
+		}
+		if(texture_out != null) {
+			GLES20.glDeleteTextures(1, texture_out, 0);
+			texture_out = null;
+		}
+		if(depthRenderBuffer != null) {
+			GLES20.glDeleteRenderbuffers(1, depthRenderBuffer, 0);
+			depthRenderBuffer = null;
+		}
 	}
 	
 	@Override
@@ -55,6 +81,30 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 				target.newTextureReady(texture_out[0], this);
 			}
 		}
+	}
+	
+	/**
+	 * Returns the object used to lock the target list.  Iterating over or changing the target list
+	 * should be done in a synchronized block that is locked using the object return.
+	 * @return lock
+	 * the object which is used to lock the target list
+	 */
+	public Object getLockObject() {
+		return listLock;
+	}
+	
+	/**
+	 * Returns a list of all the targets that this renderer should send its output to.  Iterating over or changing this
+	 * list should be done in a synchronized block, locked using the object returned from getLockObject().
+	 * @return targets 
+	 */
+	public List<GLTextureInputRenderer> getTargets() {
+		return targets;
+	}
+	
+	@Override
+	protected void handleSizeChange() {
+		initFBO();
 	}
 	
 	private void initFBO() {
@@ -99,17 +149,6 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	}
 	
 	/**
-	 * Adds the given target to the list of targets that this renderer sends its output to.
-	 * @param target
-	 * The target which should be added to the list of targets that this renderer sends its output to.
-	 */
-	public synchronized void addTarget(GLTextureInputRenderer target) {
-		synchronized(listLock) {
-			targets.add(target);
-		}
-	}
-	
-	/**
 	 * Removes the given target from the list of targets that this renderer sends its output to.
 	 * @param target
 	 * The target which should be removed from the list of targets that this renderer sends its output to.
@@ -117,42 +156,6 @@ public abstract class GLTextureOutputRenderer extends GLRenderer {
 	public void removeTarget(GLTextureInputRenderer target) {
 		synchronized(listLock) {
 			targets.remove(target);
-		}
-	}
-	
-	/**
-	 * Returns a list of all the targets that this renderer should send its output to.  Iterating over or changing this
-	 * list should be done in a synchronized block, locked using the object returned from getLockObject().
-	 * @return targets 
-	 */
-	public List<GLTextureInputRenderer> getTargets() {
-		return targets;
-	}
-	
-	/**
-	 * Returns the object used to lock the target list.  Iterating over or changing the target list
-	 * should be done in a synchronized block that is locked using the object return.
-	 * @return lock
-	 * the object which is used to lock the target list
-	 */
-	public Object getLockObject() {
-		return listLock;
-	}
-	
-	@Override
-	public void destroy() {
-		super.destroy();
-		if(frameBuffer != null) {
-			GLES20.glDeleteFramebuffers(1, frameBuffer, 0);
-			frameBuffer = null;
-		}
-		if(texture_out != null) {
-			GLES20.glDeleteTextures(1, texture_out, 0);
-			texture_out = null;
-		}
-		if(depthRenderBuffer != null) {
-			GLES20.glDeleteRenderbuffers(1, depthRenderBuffer, 0);
-			depthRenderBuffer = null;
 		}
 	}
 }

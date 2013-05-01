@@ -5,6 +5,13 @@ import project.android.imageprocessing.input.GLTextureOutputRenderer;
 import android.graphics.PointF;
 import android.opengl.GLES20;
 
+/**
+ * The inverse of the {@link GaussianSelectiveBlurFilter}, applying the blur only within a certain circle
+ * blurSize: A multiplier for the size of the blur, ranging from 0.0 on up
+ * blurCenter: Center for the blur
+ * blurRadius: Radius for the blur
+ * @author Chris Batt
+ */
 public class GaussianBlurPositionFilter extends CompositeFilter {
 	protected static final String UNIFORM_BLUR_SIZE = "u_BlurSize";
 	protected static final String UNIFORM_ASPECT_RATIO = "u_AspectRatio";
@@ -37,35 +44,6 @@ public class GaussianBlurPositionFilter extends CompositeFilter {
 	}
 	
 	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		blurSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BLUR_SIZE);
-		aspectRatioHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ASPECT_RATIO);
-		excludedCirclePointHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_EXCLUDE_CIRCLE_POINT);
-		excludedCircleRadiusHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_EXCLUDE_CIRCLE_RADIUS);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(blurSizeHandle, blurSize);
-		GLES20.glUniform1f(aspectRatioHandle, aspectRatio);
-		GLES20.glUniform1f(excludedCircleRadiusHandle, excludedCircleRadius);
-		GLES20.glUniform2f(excludedCirclePointHandle, excludedCirclePoint.x, excludedCirclePoint.y);
-	} 
-	
-	@Override
-	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
-		if(filterLocations.size() < 2 || !filterLocations.contains(source)) {
-			clearRegisteredFilterLocations();
-			registerFilterLocation(source, 0);
-			registerFilterLocation(blur, 1);
-			registerInputOutputFilter(source);
-		}
-		super.newTextureReady(texture, source);
-	}
-	
-	@Override
 	protected String getFragmentShader() {
 		return
 				 "precision mediump float;\n" 
@@ -85,5 +63,34 @@ public class GaussianBlurPositionFilter extends CompositeFilter {
 		  		+"   float distanceFromCenter = distance("+UNIFORM_EXCLUDE_CIRCLE_POINT+", texCoordAfterAspect);\n"
 				+"   gl_FragColor = mix(blurredImageColor, sharpImageColor, smoothstep("+UNIFORM_EXCLUDE_CIRCLE_RADIUS+" - "+UNIFORM_BLUR_SIZE+", "+UNIFORM_EXCLUDE_CIRCLE_RADIUS+", distanceFromCenter));\n"
 		  		+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		blurSizeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_BLUR_SIZE);
+		aspectRatioHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_ASPECT_RATIO);
+		excludedCirclePointHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_EXCLUDE_CIRCLE_POINT);
+		excludedCircleRadiusHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_EXCLUDE_CIRCLE_RADIUS);
+	} 
+	
+	@Override
+	public void newTextureReady(int texture, GLTextureOutputRenderer source) {
+		if(filterLocations.size() < 2 || !filterLocations.contains(source)) {
+			clearRegisteredFilterLocations();
+			registerFilterLocation(source, 0);
+			registerFilterLocation(blur, 1);
+			registerInputOutputFilter(source);
+		}
+		super.newTextureReady(texture, source);
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(blurSizeHandle, blurSize);
+		GLES20.glUniform1f(aspectRatioHandle, aspectRatio);
+		GLES20.glUniform1f(excludedCircleRadiusHandle, excludedCircleRadius);
+		GLES20.glUniform2f(excludedCirclePointHandle, excludedCirclePoint.x, excludedCirclePoint.y);
 	}
 }

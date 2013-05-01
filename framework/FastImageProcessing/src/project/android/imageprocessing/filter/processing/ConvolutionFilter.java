@@ -31,10 +31,6 @@ public class ConvolutionFilter extends MultiPixelRenderer {
 		filterSize = filterWidth*filterHeight;
 	}
 	
-	private int getFilterSize() {
-		return filterSize;
-	}
-	
 	private String createFilterBody(int width, int height) {
 		String filterBody = "   vec3 color = ";
 		int middleWidth = (width-1)/2;
@@ -53,18 +49,10 @@ public class ConvolutionFilter extends MultiPixelRenderer {
 		return filterBody;
 	}
 	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		filterHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_FILTER);
+	private int getFilterSize() {
+		return filterSize;
 	}
 	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1fv(filterHandle, filterSize, filter, 0);
-	}
-
 	@Override
 	protected String getFragmentShader() {
 		return 
@@ -80,5 +68,17 @@ public class ConvolutionFilter extends MultiPixelRenderer {
 				+"   vec2 heightStep = vec2(0, "+UNIFORM_TEXELHEIGHT+");"
 				+ filterBody
 		  		+"}\n";		
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		filterHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_FILTER);
+	}
+
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1fv(filterHandle, filterSize, filter, 0);
 	}
 }

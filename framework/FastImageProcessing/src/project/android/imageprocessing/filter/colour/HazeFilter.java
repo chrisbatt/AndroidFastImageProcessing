@@ -3,6 +3,12 @@ package project.android.imageprocessing.filter.colour;
 import project.android.imageprocessing.filter.BasicFilter;
 import android.opengl.GLES20;
 
+/**
+ * Used to add or remove haze (similar to a UV filter)
+ * distance: Strength of the color applied. Values between -.3 and .3 are best.
+ * slope: Amount of color change. Values between -.3 and .3 are best.
+ * @author Chris Batt
+ */
 public class HazeFilter extends BasicFilter {
 	private static final String UNIFORM_DISTANCE = "u_Distance";
 	private static final String UNIFORM_SLOPE = "u_Slope";
@@ -15,20 +21,6 @@ public class HazeFilter extends BasicFilter {
 	public HazeFilter(float distance, float slope) {
 		this.distance = distance;
 		this.slope = slope;
-	}
-	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		distanceHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DISTANCE);
-		slopeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SLOPE); 
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(distanceHandle, distance);
-		GLES20.glUniform1f(slopeHandle, slope);
 	}
 	
 	@Override
@@ -47,5 +39,19 @@ public class HazeFilter extends BasicFilter {
 		  		+"   vec4 result = (c - color) / (1.0-d);\n"
 		  		+"   gl_FragColor = vec4(result.rgb, c.a);\n"
 		  		+"}\n";	
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		distanceHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_DISTANCE);
+		slopeHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_SLOPE); 
+	}
+	
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(distanceHandle, distance);
+		GLES20.glUniform1f(slopeHandle, slope);
 	}
 }

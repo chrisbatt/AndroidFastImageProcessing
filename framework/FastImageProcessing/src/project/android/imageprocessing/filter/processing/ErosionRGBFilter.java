@@ -2,6 +2,10 @@ package project.android.imageprocessing.filter.processing;
 
 import project.android.imageprocessing.filter.TwoPassMultiPixelFilter;
 
+/**
+ * This is the same as the {@link ErosionFilter}, except that this acts on all color channels, not just the red channel.
+ * @author Chris Batt
+ */
 public class ErosionRGBFilter extends TwoPassMultiPixelFilter {
 	private int erosionRadius;
 	

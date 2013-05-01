@@ -52,31 +52,6 @@ public class LevelsFilter extends BasicFilter {
 		this.maxOut = maxOut;
 	}
 	
-	@Override
-	protected void initShaderHandles() {
-		super.initShaderHandles();
-		gammaHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_GAMMA);
-		minInHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MININ);
-		maxInHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MAXIN);
-		minOutHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MINOUT);
-		maxOutHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MAXOUT);
-	}
-	
-	@Override
-	protected void passShaderValues() {
-		super.passShaderValues();
-		GLES20.glUniform1f(gammaHandle, gamma);
-		GLES20.glUniform1f(minInHandle, minIn);
-		GLES20.glUniform1f(maxInHandle, maxIn);
-		GLES20.glUniform1f(minOutHandle, minOut);
-		GLES20.glUniform1f(maxOutHandle, maxOut);
-	} 
-	
-	/*
-	 ** Gamma correction
-	 ** Details: http://blog.mouaif.org/2009/01/22/photoshop-gamma-correction-shader/
-	 */
-
 	/*
 	 ** Levels control (input (+gamma), output)
 	 ** Details: http://blog.mouaif.org/2009/01/28/levels-control-shader/
@@ -103,5 +78,30 @@ public class LevelsFilter extends BasicFilter {
 		  		+"   vec4 color = texture2D("+UNIFORM_TEXTURE0+", "+VARYING_TEXCOORD+");\n"
 				+"   gl_FragColor = vec4(LevelsControl(color.rgb, vec3("+UNIFORM_MININ+"), vec3("+UNIFORM_GAMMA+"), vec3("+UNIFORM_MAXIN+"), vec3("+UNIFORM_MINOUT+"), vec3("+UNIFORM_MAXOUT+")), color.a);\n"
 				+"}\n";
+	}
+	
+	@Override
+	protected void initShaderHandles() {
+		super.initShaderHandles();
+		gammaHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_GAMMA);
+		minInHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MININ);
+		maxInHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MAXIN);
+		minOutHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MINOUT);
+		maxOutHandle = GLES20.glGetUniformLocation(programHandle, UNIFORM_MAXOUT);
+	} 
+	
+	/*
+	 ** Gamma correction
+	 ** Details: http://blog.mouaif.org/2009/01/22/photoshop-gamma-correction-shader/
+	 */
+
+	@Override
+	protected void passShaderValues() {
+		super.passShaderValues();
+		GLES20.glUniform1f(gammaHandle, gamma);
+		GLES20.glUniform1f(minInHandle, minIn);
+		GLES20.glUniform1f(maxInHandle, maxIn);
+		GLES20.glUniform1f(minOutHandle, minOut);
+		GLES20.glUniform1f(maxOutHandle, maxOut);
 	}
 }
