@@ -22,8 +22,6 @@ i) Right click project -> Build Path -> Configure Build Path
 ii) In the list on the left, select "android" -> under library, click "add" -> in the popup, select "FastImageProcessing"
 ![Alt text](/doc/setup/step2.png)
 
-4. Write code?
-5. 
 Basic setup for a simple filter pipeline.  More examples can be found in "/examples".
 ```java
 public class ImageProcessingActivity extends Activity {
