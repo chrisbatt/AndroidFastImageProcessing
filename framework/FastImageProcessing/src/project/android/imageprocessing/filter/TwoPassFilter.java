@@ -9,7 +9,7 @@ import android.opengl.GLES20;
  * getCurrentPass() can be called.  The current pass will either be 1 or 2.
  * @author Chris Batt
  */
-public class TwoPassFilter extends BasicFilter {
+public abstract class TwoPassFilter extends BasicFilter {
 	private int[] firstPassFrameBuffer;
 	private int[] firstPassTextureOut;
 	private int[] firstPassDepthRenderBuffer;

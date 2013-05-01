@@ -11,7 +11,7 @@ import project.android.imageprocessing.input.GLTextureOutputRenderer;
  * this filter, see  {@link CompositeFilter}.
  * @author Chris Batt
  */
-public class CompositeMultiPixelFilter extends MultiInputPixelFilter {
+public abstract class CompositeMultiPixelFilter extends MultiInputPixelFilter {
 	private List<BasicFilter> initialFilters;
 	private List<GLTextureOutputRenderer> terminalFilters;
 	private List<GLTextureOutputRenderer> inputOutputFilters;

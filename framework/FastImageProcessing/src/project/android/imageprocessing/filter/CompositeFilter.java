@@ -19,7 +19,7 @@ import project.android.imageprocessing.input.GLTextureOutputRenderer;
  * it should be registered with registerInputOutputFilter(GLTextureOutputRenderer filter). On top of the
  * registering the internal filters, the filter locations for the {@link MultiInputFilter} should also be registered.
  */
-public class CompositeFilter extends MultiInputFilter {
+public abstract class CompositeFilter extends MultiInputFilter {
 	private List<BasicFilter> initialFilters;
 	private List<GLTextureOutputRenderer> terminalFilters;
 	private List<GLTextureOutputRenderer> inputOutputFilters;

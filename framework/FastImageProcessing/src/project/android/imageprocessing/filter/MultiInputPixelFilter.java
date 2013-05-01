@@ -7,7 +7,7 @@ import android.opengl.GLES20;
  * more details on setup of this class and usage see {@link MultiInputFilter} and {@link MultiPixelRenderer}.
  * @author Chris Batt
  */
-public class MultiInputPixelFilter extends MultiInputFilter {
+public abstract class MultiInputPixelFilter extends MultiInputFilter {
 	protected static final String UNIFORM_TEXELWIDTH = "u_TexelWidth";
 	protected static final String UNIFORM_TEXELHEIGHT = "u_TexelHeight";
 	

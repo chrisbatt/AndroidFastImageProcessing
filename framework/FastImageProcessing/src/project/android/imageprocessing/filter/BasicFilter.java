@@ -10,7 +10,7 @@ import project.android.imageprocessing.output.GLTextureInputRenderer;
  * as the output texture.
  * @author Chris Batt
  */
-public class BasicFilter extends GLTextureOutputRenderer implements GLTextureInputRenderer {
+public abstract class BasicFilter extends GLTextureOutputRenderer implements GLTextureInputRenderer {
 	
 	/* (non-Javadoc)
 	 * @see project.android.imageprocessing.output.GLTextureInputRenderer#newTextureReady(int, project.android.imageprocessing.input.GLTextureOutputRenderer)

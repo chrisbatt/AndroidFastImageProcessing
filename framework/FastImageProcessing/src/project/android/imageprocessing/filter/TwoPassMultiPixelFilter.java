@@ -10,7 +10,7 @@ import android.opengl.GLES20;
  * rendering, see {@link MultiPixelRenderer}.
  * @author Chris Batt
  */
-public class TwoPassMultiPixelFilter extends TwoPassFilter {
+public abstract class TwoPassMultiPixelFilter extends TwoPassFilter {
 	protected static final String UNIFORM_TEXELWIDTH = "u_TexelWidth";
 	protected static final String UNIFORM_TEXELHEIGHT = "u_TexelHeight";
 	
