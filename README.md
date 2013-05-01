@@ -35,8 +35,6 @@ public class ImageProcessingActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		view = new FastImageProcessingView(this);
 		pipeline = new FastImageProcessingPipeline();
 		view.setPipeline(pipeline);
