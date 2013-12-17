@@ -1,6 +1,1 @@
-/** Automatically generated file. DO NOT MODIFY */
-package project.android.fastimageprocessing;
-
-public final class BuildConfig {
-    public final static boolean DEBUG = true;
-}
+/** Automatically generated file. DO NOT MODIFY */package project.android.fastimageprocessing;public final class BuildConfig {    public final static boolean DEBUG = true;}
