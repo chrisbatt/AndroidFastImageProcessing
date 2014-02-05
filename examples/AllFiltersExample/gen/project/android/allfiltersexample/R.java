@@ -18,7 +18,8 @@ public final class R {
         public static final int lookup_miss_etikate=0x7f020004;
         public static final int lookup_soft_elegance_1=0x7f020005;
         public static final int lookup_soft_elegance_2=0x7f020006;
-        public static final int webcircles=0x7f020007;
+        public static final int test_image=0x7f020007;
+        public static final int webcircles=0x7f020008;
     }
     public static final class id {
         public static final int menu_settings=0x7f060000;

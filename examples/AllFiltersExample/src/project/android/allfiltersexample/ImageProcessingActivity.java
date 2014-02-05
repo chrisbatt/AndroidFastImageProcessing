@@ -50,10 +50,11 @@ public class ImageProcessingActivity extends Activity {
 		view.setPipeline(pipeline);
 		setContentView(view);
 		usingCamera = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH);
+		usingCamera = false;
 		if (usingCamera) {
 			input = new CameraPreviewInput(view);
 	    } else {
-			input = new ImageResourceInput(view, this, R.drawable.kukulkan);
+			input = new ImageResourceInput(view, this, R.drawable.test_image);
 	    }
 		filters = new ArrayList<BasicFilter>();
 		
@@ -103,7 +104,7 @@ public class ImageProcessingActivity extends Activity {
 		addFilter(new FastBlurFilter());
 		addFilter(new UnsharpMaskFilter(2.0f, 0.5f));
 		addFilter(new SharpenFilter(1f));
-		addFilter(new LanczosResamplingFilter(256, 128));
+		//addFilter(new LanczosResamplingFilter(256, 128));
 		addFilter(new CropFilter(0.25f,0f,0.75f,1f));
 		BasicFilter cFilter1 = new CropFilter(0.25f,0f,0.75f,1f);
 		cFilter1.rotateClockwise90Degrees(1);
